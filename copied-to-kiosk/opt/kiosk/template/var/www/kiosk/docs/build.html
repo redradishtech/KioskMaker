@@ -8,7 +8,7 @@
         <meta name="author" content="Jeff Turner">
         
         <link rel="shortcut icon" href="img/favicon.ico">
-        <title>Build - KioskBuilder</title>
+        <title>Build - KioskMaker</title>
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/fontawesome.min.css" rel="stylesheet">
         <link href="css/brands.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
     <body>
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href="index.html">KioskBuilder</a>
+                <a class="navbar-brand" href="index.html">KioskMaker</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -60,6 +60,9 @@
                                 <a rel="next" href="config.html" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/redradishtech/KioskMaker/blob/main/docs-src/docs/build.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -327,8 +330,9 @@ reboot
 </code></pre></div>
 Edit <code>ks.cfg</code> and run <code>./01_createkiosk_virtualbox</code>.  If all goes well, a fresh VM will be created, and boot pointing to the AlmaLinux iso. </p>
 <p><img alt="" src="img/vbox_created.png" /></p>
+<p>Kick off the installation:</p>
 <p><img alt="" src="img/alma_grub.png" /></p>
-<p>After kicking off the installation, no further interaction should be required from you. The installation should automatically start:
+<p>No further interaction should be required from you. The installation should automatically start:
 <img alt="" src="img/alma_installing.png" /></p>
 <p>Once the installer completes you can reboot, and the VM should boot into a terminal prompt. You now have a clean AlmaLinux ready to be turned into a kiosk.</p>
 <h2 id="kioskify-the-os">Kioskify the OS</h2>
@@ -437,8 +441,8 @@ set_grub_password<span class="o">()</span><span class="w"> </span><span class="o
 <span class="o">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
 
 set_grub_password
-./docs/build
-rsync<span class="w"> </span>-rR<span class="w"> </span>./docs/site/./<span class="w"> </span>./copied-to-kiosk/opt/kiosk/template/var/www/kiosk/docs
+./docs-src/build
+rsync<span class="w"> </span>-rR<span class="w"> </span>./docs/./<span class="w"> </span>./copied-to-kiosk/opt/kiosk/template/var/www/kiosk/docs
 sync_files_on_kiosk
 ./sshkiosk<span class="w"> </span>/opt/kiosk/kioskify
 
@@ -454,7 +458,7 @@ sync_files_on_kiosk
 <p>The <code>02_kioskify-vm</code> script copies <code>./copied-to-kiosk/opt/kiosk</code> to <code>/opt/kiosk</code> on the VM, and then invokes <code>/opt/kiosk/kioskify</code> inside the VM. If anything breaks, you can edit <code>./copied-to-kiosk/opt/kiosk/kioskify</code> locally, then re-run <code>./02_kioskify-vm</code> to deploy and re-run it. <code>/opt/kiosk/kioskify</code> is idempotent and can be run as many times as necessary. See <a href="opt-kiosk-contents.html">opt/kiosk-contents</a></p>
 </div>
 <p>Reboot the now-kioskified VM (e.g. <code>ssh kiosk reboot</code>). It should boot with 3 Grub boot options:</p>
-<p><img alt="" src="img/docs/img/grub.png" /></p>
+<p><img alt="" src="img/grub.png" /></p>
 <p>Choose the 'read-write' option.</p>
 <p><img alt="" src="img/configmode.png" /></p>
 <p>Your Virtualbox VM is now in the KioskMaker configuration state, ready to be packaged. You might like to save an image of the VM.</p>
@@ -580,7 +584,7 @@ fail<span class="o">()</span><span class="w"> </span><span class="o">{</span><sp
 <p>Initially I started with the AlmaLinux 'minimal' iso, and added just enough packages required to get Gnome running. However, 'just enough' is hard to determine, and configuration is flaky. For instance, with  my hand-picked packages:
  - Gnome settings app hangs when I try to set the timezone automatically.
  -  There's a strange white block between hour and date:
-   <img alt="" src="img/Pasted%20image%2020250805113023.png" />
+   <img alt="" src="img/desktop_whitebox.png" />
  - if 'nautilus' isn't present, one cannot pick a background image file.</p>
 <p>The disk size difference is 4.1Gb (minimal + packages) vs. 4.9Gb (desktop), so in the end I switched to desktop.</p>
 <h2 id="summary">Summary</h2>

@@ -8,7 +8,7 @@
         <meta name="author" content="Jeff Turner">
         
         <link rel="shortcut icon" href="img/favicon.ico">
-        <title>Configure - KioskBuilder</title>
+        <title>Configure - KioskMaker</title>
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/fontawesome.min.css" rel="stylesheet">
         <link href="css/brands.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
     <body>
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href="index.html">KioskBuilder</a>
+                <a class="navbar-brand" href="index.html">KioskMaker</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -60,6 +60,9 @@
                                 <a rel="next" class="nav-link disabled">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/redradishtech/KioskMaker/blob/main/docs-src/docs/config.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -167,7 +170,19 @@ then rerun <code>./02_kioskify-vm</code>.</p>
 
 <p>Congratulations, you have successfully configured your Kiosk! </p>
 <h1 id="getting-out-of-kiosk-mode">Getting out of Kiosk mode</h1>
-<p>It is possible to return from </p></div>
+<p>To change from locked-down kiosk mode back to <a href="config.html">configuration mode</a></p>
+<ul>
+<li>Power cycle the kiosk</li>
+<li>As the kiosk starts, press Esc.</li>
+<li>You should see the grub boot screen:</li>
+</ul>
+<p><img alt="" src="img/grub.png" /></p>
+<p>Choose 'Kiosk - Configuration Mode (read-write)'</p>
+<ul>
+<li>When prompted for username, enter <code>root</code></li>
+<li>When prompted for a password, enter the password set at kiosk build time. The password is in the <code>02_kioskify-vm</code>
+    script, and defaults to <code>kioskmaker</code></li>
+</ul></div>
             </div>
         </div>
 

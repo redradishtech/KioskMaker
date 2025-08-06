@@ -8,7 +8,7 @@
         <meta name="author" content="Jeff Turner">
         
         <link rel="shortcut icon" href="img/favicon.ico">
-        <title>KioskBuilder</title>
+        <title>KioskMaker</title>
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/fontawesome.min.css" rel="stylesheet">
         <link href="css/brands.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
     <body class="homepage">
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href="index.html">KioskBuilder</a>
+                <a class="navbar-brand" href="index.html">KioskMaker</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -60,6 +60,9 @@
                                 <a rel="next" href="build.html" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/redradishtech/KioskMaker/blob/main/docs-src/docs/index.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -102,6 +105,8 @@
                     <div class="col-md-9" role="main">
 
 <h1 id="an-initially-configurable-ultimately-locked-down-chrome-kiosk">An initially configurable, ultimately locked down Chrome kiosk</h1>
+<p><a href="https://github.com/redradishtech/KioskMaker"><img alt="GitHub
+Repo" src="https://img.shields.io/badge/GitHub-KioskMaker-blue?logo=github" /></a></p>
 <p>Say you need a 'kiosk' -- a computer that can only do one thing: run a browser with a particular URL. Our goals are:</p>
 <ul>
 <li>The computer must boot straight into the browser, with no interaction</li>
@@ -132,7 +137,7 @@
 </figure>
 
 <h1 id="this-project">This project</h1>
-<p>KioskMaker is a set of scripts for building such a kiosk, based on <a href="https://almalinux.org/">AlmaLinux</a>, and targeting x86_64 hardware capable of running Chrome. You feed the scripts a downloaded AlmaLinux <code>.iso</code>, and end with a raw disk image of a customized operating system, which you can write directly to the hard disk of a kiosk.</p>
+<p>KioskMaker is a set of scripts <a href="https://github.com/redradishtech/KioskMaker">on github</a> for building such a kiosk, based on <a href="https://almalinux.org/">AlmaLinux</a>, and targeting x86_64 hardware capable of running Chrome. You feed the scripts a downloaded AlmaLinux <code>.iso</code>, and end with a raw disk image of a customized operating system, which you can write directly to the hard disk of a kiosk.</p>
 <h3 id="security">Security</h3>
 <p>KioskMaker is read-only and locked down for the sake of robustness, not security. The intention is to prevent accidental changes, rather than defend against a hostile user. Operators are assumed to have physical access, which is very hard to defend against - at a minimum one would need to:</p>
 <ul>
@@ -230,5 +235,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-08-06 08:57:54.494580+00:00
+Build Date UTC : 2025-08-06 12:11:09.332050+00:00
 -->
