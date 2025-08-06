@@ -68,6 +68,9 @@ VBoxManage modifyvm "$k" --memory 4096
 VBoxManage modifyvm "$k" --firmware efi
 VBoxManage modifyvm "$k" --cpus 2
 
+VBoxManage modifyvm "$k" --nictype1 virtio   # The default e1000 is unsupported and prints a warning
+VBoxManage modifyvm "$k" --graphicscontroller vmsvga   # The default unsupported and prints a warning
+VBoxManage modifyvm "$k" --accelerate3d on
 # Minimal requires 8Gb. Graphical requires 10Gb
 VBoxManage createmedium disk --filename "$vmdir/$k.vdi" --size $((8*1024))
 VBoxManage storagectl "$k" --name "SATA Controller" --add sata --portcount 2

@@ -102,8 +102,8 @@ set_grub_password() {
 ) || echo $?
 
 set_grub_password
-./docs/build
-rsync -rR ./docs/site/./ ./copied-to-kiosk/opt/kiosk/template/var/www/kiosk/docs
+./docs-src/build
+rsync -rR ./docs/./ ./copied-to-kiosk/opt/kiosk/template/var/www/kiosk/docs
 sync_files_on_kiosk
 ./sshkiosk /opt/kiosk/kioskify
 
