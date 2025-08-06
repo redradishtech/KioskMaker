@@ -7,4 +7,4 @@ Need a custom 'kiosk' operating system that:
  - ..but that is configurable at deploy time?
 
 
-That's us! See the [![docs](https://img.shields.io/badge/docs-available-blue)](https://redradishtech.github.io/KioskMaker)
+That's us! See the [website](https://redradishtech.github.io/KioskMaker) for more.
