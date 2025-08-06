@@ -4,7 +4,7 @@ hide:
 ---
 
 
-# An initially configurable, ultimately locked down Chrome kiosk
+# An initially configurable, ultimately locked down Chrome kiosk OS
 
 [![GitHub
 Repo](https://img.shields.io/badge/GitHub-KioskMaker-blue?logo=github)](https://github.com/redradishtech/KioskMaker)
