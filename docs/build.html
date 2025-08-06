@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <meta name="author" content="Jeff Turner">
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>Build - KioskMaker</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/fontawesome.min.css" rel="stylesheet">
+        <link href="css/brands.min.css" rel="stylesheet">
+        <link href="css/solid.min.css" rel="stylesheet">
+        <link href="css/v4-font-face.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="github-dark.min.css" disabled>
+        <script src="highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">KioskMaker</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="index.html" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="build.html" class="nav-link active" aria-current="page">Build</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="config.html" class="nav-link">Configure</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="index.html" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="config.html" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/redradishtech/KioskMaker/blob/main/docs-src/docs/build.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#building-a-kioskmaker-image" class="nav-link">Building a KioskMaker image</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#requirements" class="nav-link">Requirements</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#install-virtualbox" class="nav-link">Install VirtualBox</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#deploy-almalinux-to-a-virtualbox-vm" class="nav-link">Deploy AlmaLinux to a Virtualbox VM</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#kioskify-the-os" class="nav-link">Kioskify the OS</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#recreating-the-raw-disk-image" class="nav-link">Recreating the raw disk image</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#addendum-choice-of-base-os" class="nav-link">Addendum: Choice of base OS</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#windows" class="nav-link">Windows?</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#driver-availability-and-secure-boot-friendliness" class="nav-link">Driver availability and Secure Boot friendliness</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#kiosk-mode-support" class="nav-link">Kiosk mode support</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#read-only-support" class="nav-link">Read-only support</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#summary" class="nav-link">Summary</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="building-a-kioskmaker-image">Building a KioskMaker image</h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you would like a kiosk image built for you, the <a href="mailto:jeff@redradishtech.com">author</a> is available for consulting. KioskMaker originated as a consulting project.</p>
+</div>
+<p>Here we describe how to build your own kiosk disk image.</p>
+<h2 id="requirements">Requirements</h2>
+<p>You will need:</p>
+<ul>
+<li>A Linux environment (I use Ubuntu 25.04, but any will do)</li>
+<li>Virtualbox (tested with 7.1.12)</li>
+<li>A clean AlmaLinux iso image (tested with AlmaLinux 10).</li>
+<li>A lot of patience as you follow the docs, and run the indicated scripts, and repeatedly rebuild and tweak your kiosk in Virtualbox.</li>
+</ul>
+<h2 id="install-virtualbox">Install VirtualBox</h2>
+<p>VirtualBox is quite fiddly to install, at least on Ubuntu. I install VirtualBox by:</p>
+<ul>
+<li>downloading the <a href="https://www.virtualbox.org/wiki/Linux_Downloads">latest Virtualbox .deb</a></li>
+<li><code>dpkg -i</code> the .deb </li>
+<li><code>apt install --fix-broken</code> to get missing dependencies</li>
+<li>Adding myself to <code>vboxusers</code>:
+ <div class="highlight"><pre><span></span><code>groupadd vboxusers
+sudo usermod -aG vboxusers $USER
+newgrp vboxusers
+</code></pre></div></li>
+<li>Launch virtualbox from my <code>vboxusers</code>-enabled shell:
+ <div class="highlight"><pre><span></span><code>virtualbox
+</code></pre></div>
+Nothing else virtualization-related can be running. E.g. uing a Ryzen CPU, I got this error:
+<div class="highlight"><pre><span></span><code>VBoxManage: error: VirtualBox can&#39;t enable the AMD-V extension. Please disable the KVM kernel extension, recompile your kernel and reboot (VERR_SVM_IN_USE) VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole
+</code></pre></div>
+This is fixable by running <code>sudo rmmod kvm kvm_amd</code>.</li>
+</ul>
+<p>If you get weird errors, try deleting <code>~/.VirtualBox/</code> to clean out old settings from past installations.</p>
+<h2 id="deploy-almalinux-to-a-virtualbox-vm">Deploy AlmaLinux to a Virtualbox VM</h2>
+<p>The process of setting up a VirtualBox VM and installing AlmaLinux is fully automated by the <code>01_createkiosk_virtualbox</code> script: </p>
+<p><div class="highlight"><span class="filename">01_createkiosk_virtualbox</span><pre><span></span><code><span class="ch">#!/bin/bash -eu</span>
+<span class="c1"># Creates a Virtualbox VM called &#39;kiosk&#39;, running AlmaLinux.</span>
+<span class="c1">#</span>
+<span class="c1"># AlmaLinux installation is automated via the ./ks.cfg Kickstart configuration.</span>
+<span class="c1"># Please edit ./ks.cfg before running this script, or add --manual to do OS</span>
+<span class="c1"># configuration by hand.</span>
+<span class="c1">#</span>
+<span class="c1"># Flags:</span>
+<span class="c1">#  --wipe       any existing kiosk VM is wiped and recreated</span>
+<span class="c1">#  --manual     allow manual installation rather than Kickstart automation</span>
+<span class="c1">#</span>
+<span class="c1"># After running, you may SSH into the VM with ./sshkiosk or proceed to ./02_kioskify-vm</span>
+
+<span class="c1"># Get the desired &#39;minimal&#39; ISO url and sha256sum from https://almalinux.org/get-almalinux/</span>
+<span class="c1">#url=&quot;https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.0-x86_64-minimal.iso&quot;</span>
+<span class="nv">url</span><span class="o">=</span><span class="s2">&quot;https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.0-x86_64-dvd.iso&quot;</span>
+<span class="c1">#sha256sum=e73ccc95ff21a43ab23eebe227257fa34df091570b2bcf8a23f918bf9b662fc3</span>
+<span class="nv">sha256sum</span><span class="o">=</span>6c443f462b3993d15192a7c43ba8dfa3f232514db47d38796dab007a7455ae1a
+<span class="nv">downloaddir</span><span class="o">=</span>~/Downloads
+<span class="nv">k</span><span class="o">=</span>kiosk
+<span class="nv">vmbase</span><span class="o">=</span>~/VirtualBox<span class="se">\ </span>VMs
+<span class="nv">vmdir</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$vmbase</span><span class="s2">/</span><span class="nv">$k</span><span class="s2">&quot;</span>
+
+fail<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$*</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+
+<span class="nv">iso</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$downloaddir</span><span class="s2">/</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$url</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$iso</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">(</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$downloaddir</span><span class="s2">&quot;</span>
+<span class="w">    </span>curl<span class="w"> </span>-C<span class="w"> </span>-<span class="w"> </span>-LOJ<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$url</span><span class="s2">&quot;</span>
+<span class="o">)</span>
+<span class="c1">#sha256sum &quot;$iso&quot; | grep -q &quot;$sha256sum&quot; || fail &quot;$iso does not match sha256 checksum $sha256sum&quot;</span>
+
+<span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="nv">$vmbase</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;Missing </span><span class="nv">$vmbase</span><span class="s2">. Is Virtualbox not installed?&quot;</span>
+
+<span class="k">if</span><span class="w"> </span>VBoxManage<span class="w"> </span>list<span class="w"> </span>vms<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;\&quot;</span><span class="nv">$k</span><span class="s2">\&quot;&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$*</span><span class="w"> </span><span class="o">=</span>~<span class="w"> </span>--wipe<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span>true<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">            </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>VBoxManage<span class="w"> </span>showvminfo<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--machinereadable<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-P<span class="w">  </span><span class="s1">&#39;^(VMState)=&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;State: </span><span class="nv">$VMState</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$VMState</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">                </span>running<span class="o">)</span><span class="w"> </span>VBoxManage<span class="w"> </span>controlvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>poweroff<span class="p">;;</span>
+<span class="w">                </span>poweroff<span class="o">)</span><span class="w"> </span><span class="k">break</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">            </span><span class="k">esac</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span>.
+<span class="w">            </span>sleep<span class="w"> </span><span class="m">0</span>.1
+<span class="w">        </span><span class="k">done</span>
+<span class="w">        </span>rm<span class="w"> </span>-f<span class="w"> </span>./tmp/known_hosts
+<span class="w">        </span>sleep<span class="w"> </span><span class="m">0</span>.4
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span>fail<span class="w"> </span><span class="s2">&quot;&#39;</span><span class="nv">$k</span><span class="s2">&#39; already exists. Add --wipe to recreate the VM (and its disk)&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">fi</span>
+
+<span class="c1"># Detach and nuke disk</span>
+<span class="k">if</span><span class="w"> </span>VBoxManage<span class="w"> </span>showmediuminfo<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$vmdir</span><span class="s2">&quot;</span>/<span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span>.vdi<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;State.*created&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>VBoxManage<span class="w"> </span>storageattach<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--storagectl<span class="w"> </span><span class="s2">&quot;SATA Controller&quot;</span><span class="w"> </span>--port<span class="w"> </span><span class="m">0</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span>--type<span class="w"> </span>hdd<span class="w"> </span>--medium<span class="w"> </span>none<span class="w"> </span><span class="p">&amp;</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>:
+<span class="w">    </span>VBoxManage<span class="w"> </span>closemedium<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$vmdir</span><span class="s2">&quot;</span>/<span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span>.vdi<span class="w"> </span>--delete
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$vmdir</span><span class="s2">&quot;</span>/<span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span>.vdi
+<span class="k">fi</span>
+
+<span class="c1"># Nuke vm</span>
+<span class="k">if</span><span class="w"> </span>VBoxManage<span class="w"> </span>showvminfo<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">&amp;</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>VBoxManage<span class="w"> </span>unregistervm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--delete
+<span class="k">fi</span>
+
+VBoxManage<span class="w"> </span>createvm<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--ostype<span class="w"> </span><span class="s2">&quot;Linux_64&quot;</span><span class="w"> </span>--register
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">4096</span>
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--firmware<span class="w"> </span>efi
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--cpus<span class="w"> </span><span class="m">2</span>
+
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--nictype1<span class="w"> </span>virtio<span class="w">   </span><span class="c1"># The default e1000 is unsupported and prints a warning</span>
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--graphicscontroller<span class="w"> </span>vmsvga<span class="w">   </span><span class="c1"># The default unsupported and prints a warning</span>
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--accelerate3d<span class="w"> </span>on
+<span class="c1"># Minimal requires 8Gb. Graphical requires 10Gb</span>
+VBoxManage<span class="w"> </span>createmedium<span class="w"> </span>disk<span class="w"> </span>--filename<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$vmdir</span><span class="s2">/</span><span class="nv">$k</span><span class="s2">.vdi&quot;</span><span class="w"> </span>--size<span class="w"> </span><span class="k">$((</span><span class="m">8</span><span class="o">*</span><span class="m">1024</span><span class="k">))</span>
+VBoxManage<span class="w"> </span>storagectl<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;SATA Controller&quot;</span><span class="w"> </span>--add<span class="w"> </span>sata<span class="w"> </span>--portcount<span class="w"> </span><span class="m">2</span>
+VBoxManage<span class="w"> </span>storageattach<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--storagectl<span class="w"> </span><span class="s2">&quot;SATA Controller&quot;</span><span class="w"> </span>--port<span class="w"> </span><span class="m">0</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span>--type<span class="w"> </span>hdd<span class="w"> </span>--medium<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$vmdir</span><span class="s2">/</span><span class="nv">$k</span><span class="s2">.vdi&quot;</span>
+VBoxManage<span class="w"> </span>storageattach<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--storagectl<span class="w"> </span><span class="s2">&quot;SATA Controller&quot;</span><span class="w"> </span>--port<span class="w"> </span><span class="m">1</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span>--type<span class="w"> </span>dvddrive<span class="w"> </span>--medium<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$iso</span><span class="s2">&quot;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$*</span><span class="w"> </span><span class="o">=</span>~<span class="w"> </span>--manual<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>:
+<span class="k">else</span>
+<span class="w">    </span><span class="c1"># Copy our Kickstart config file into a virtual &#39;oemdrv&#39; disk, and mount it.</span>
+<span class="w">    </span>mkdir<span class="w"> </span>-p<span class="w"> </span>./tmp/oemdrv
+<span class="w">    </span>cp<span class="w"> </span>ks.cfg<span class="w"> </span>./tmp/oemdrv
+<span class="w">    </span>mkisofs<span class="w"> </span>-q<span class="w"> </span>-o<span class="w"> </span>tmp/oemdrv.iso<span class="w"> </span>-V<span class="w"> </span>OEMDRV<span class="w"> </span>-r<span class="w"> </span>-J<span class="w"> </span>tmp/oemdrv
+<span class="w">    </span>VBoxManage<span class="w"> </span>storageattach<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--storagectl<span class="w"> </span><span class="s2">&quot;SATA Controller&quot;</span><span class="w"> </span>--port<span class="w"> </span><span class="m">2</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span>--type<span class="w"> </span>dvddrive<span class="w">  </span>--medium<span class="w"> </span>./tmp/oemdrv.iso
+<span class="k">fi</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${</span><span class="p">*</span><span class="k">:-</span><span class="si">}</span><span class="w"> </span><span class="o">=</span>~<span class="w"> </span>--guestadditions<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="c1"># For config, we rsync (over ssh) file to /opt/kiosk/template. An alternative is to install VirtualBox Guest Additions and share a disk, but rsync seemed simpler (and I need ssh anyway)</span>
+<span class="w">    </span>VBoxManage<span class="w"> </span>storageattach<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--storagectl<span class="w"> </span><span class="s2">&quot;SATA Controller&quot;</span><span class="w"> </span>--port<span class="w"> </span><span class="m">3</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span>--type<span class="w"> </span>dvddrive<span class="w">  </span>--medium<span class="w"> </span>/usr/share/virtualbox/VBoxGuestAdditions.iso
+<span class="k">fi</span>
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--boot1<span class="w"> </span>dvd<span class="w"> </span>--boot2<span class="w"> </span>none<span class="w"> </span>--boot3<span class="w"> </span>none<span class="w"> </span>--boot4<span class="w"> </span>none
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--vram<span class="w"> </span><span class="m">16</span>
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--graphicscontroller<span class="w"> </span>vmsvga
+VBoxManage<span class="w"> </span>modifyvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span><span class="w"> </span>--natpf1<span class="w"> </span><span class="s2">&quot;guestssh,tcp,,2222,,22&quot;</span>
+VBoxManage<span class="w"> </span>startvm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$k</span><span class="s2">&quot;</span>
+</code></pre></div>
+You should not need to edit <code>01_createkiosk_virtualbox</code>, but you probably will need to edit the Kickstart config file, specifically the <code>keyboard</code>, <code>lang</code> and <code>timezone</code> sections:
+<div class="highlight"><span class="filename">ks.cfg</span><pre><span></span><code><span class="c1"># Kickstart config, baked into tmp/oemdrv.iso by ./01_createkiosk_virtualbox, and then automatically used by the AlmaLinux installer.</span>
+<span class="c1"># You will likely want to change &#39;keyboard&#39;, &#39;lang&#39; and &#39;timezone&#39; entries.</span>
+<span class="c1">#</span>
+<span class="c1">#version=RHEL10</span>
+<span class="c1"># Use graphical install</span>
+graphical
+
+%addon<span class="w"> </span>com_redhat_kdump<span class="w"> </span>--enable<span class="w"> </span>--reserve-mb<span class="o">=</span><span class="s1">&#39;auto&#39;</span>
+
+%end
+
+<span class="c1"># Keyboard layouts</span>
+keyboard<span class="w"> </span>--xlayouts<span class="o">=</span><span class="s1">&#39;au&#39;</span>
+<span class="c1"># System language</span>
+lang<span class="w"> </span>en_AU.UTF-8
+
+%packages
+@^minimal-environment
+<span class="c1"># We need other packages, not bundled in the &#39;minimal&#39; ISO, so they are dnf install&#39;d later, when /opt/kiosk/kioskfiy runs inside the VM.</span>
+<span class="c1"># Speed up boot by not having kdump.service create /boot/initramfs-*kdump.img on crashes</span>
+-kdump-utils
+%end
+
+<span class="c1"># Run the Setup Agent on first boot</span>
+firstboot<span class="w"> </span>--enable
+
+<span class="c1"># Generated using Blivet version 3.10.0</span>
+ignoredisk<span class="w"> </span>--only-use<span class="o">=</span>sda
+
+<span class="c1"># There should be no partitions yet</span>
+clearpart<span class="w"> </span>--none<span class="w"> </span>--initlabel
+
+<span class="c1"># EFI partition (600M)</span>
+part<span class="w"> </span>/boot/efi<span class="w"> </span>--fstype<span class="o">=</span>efi<span class="w"> </span>--size<span class="o">=</span><span class="m">600</span><span class="w"> </span>--asprimary
+
+<span class="c1"># /boot partition (1G)</span>
+part<span class="w"> </span>/boot<span class="w"> </span>--fstype<span class="o">=</span>xfs<span class="w"> </span>--size<span class="o">=</span><span class="m">1024</span><span class="w"> </span>--asprimary
+
+<span class="c1"># Create PV on rest of disk (6.4G)</span>
+part<span class="w"> </span>pv.01<span class="w"> </span>--size<span class="o">=</span><span class="m">1</span><span class="w"> </span>--grow
+
+<span class="c1"># I would like to just &#39;autopart&#39;, but &#39;autopart&#39; under Virtualbox results in a volume group called &#39;almalinux_vbox&#39;, whereas our bootloader entry (copied-to-kiosk/opt/kiosk/template/boot/loader/entries/rw.conf.template) wants &#39;almalinux&#39;</span>
+
+<span class="c1"># Volume group name as seen: almalinux</span>
+volgroup<span class="w"> </span>almalinux<span class="w"> </span>pv.01
+
+<span class="c1"># Logical volume for root (5.6G)</span>
+logvol<span class="w"> </span>/<span class="w"> </span>--vgname<span class="o">=</span>almalinux<span class="w"> </span>--name<span class="o">=</span>root<span class="w"> </span>--fstype<span class="o">=</span>xfs<span class="w"> </span>--size<span class="o">=</span><span class="m">5632</span>
+
+<span class="c1"># Logical volume for swap (820M)</span>
+logvol<span class="w"> </span>swap<span class="w"> </span>--vgname<span class="o">=</span>almalinux<span class="w"> </span>--name<span class="o">=</span>swap<span class="w"> </span>--size<span class="o">=</span><span class="m">820</span>
+
+<span class="c1"># System timezone</span>
+timezone<span class="w"> </span>Australia/Sydney<span class="w"> </span>--utc
+
+<span class="c1"># Root password (&#39;kiosk&#39;)</span>
+rootpw<span class="w"> </span>--iscrypted<span class="w"> </span>--allow-ssh<span class="w"> </span><span class="nv">$y$j9T$mVqH2L1qeNxEiiB2cUezEIRa$BDQQa31tEwcWZrqqNuD6HBxURk9ryt</span>.vi/6xJYlrjA2
+reboot
+</code></pre></div>
+Edit <code>ks.cfg</code> and run <code>./01_createkiosk_virtualbox</code>.  If all goes well, a fresh VM will be created, and boot pointing to the AlmaLinux iso. </p>
+<p><img alt="" src="img/vbox_created.png" /></p>
+<p>Kick off the installation:</p>
+<p><img alt="" src="img/alma_grub.png" /></p>
+<p>No further interaction should be required from you. The installation should automatically start:
+<img alt="" src="img/alma_installing.png" /></p>
+<p>Once the installer completes you can reboot, and the VM should boot into a terminal prompt. You now have a clean AlmaLinux ready to be turned into a kiosk.</p>
+<h2 id="kioskify-the-os">Kioskify the OS</h2>
+<p>We now need to turn our vanilla AlmaLinux install into a kiosk. This is done with the <code>02_kioskify-vm</code> script:</p>
+<div class="highlight"><span class="filename">02_kioskify-vm</span><pre><span></span><code><span class="ch">#!/bin/bash -eu</span>
+<span class="c1"># Given a clean AlmaLinux install accessible via SSH on localhost:2222 (see</span>
+<span class="c1"># ./ssh_config_kioskclient), this</span>
+<span class="c1"># script turns the remote AlmaLinux into a Kiosk by copying our additions to kiosk:/opt/kiosk, and</span>
+<span class="c1"># invoking /opt/kiosk/kioskify to apply them.</span>
+<span class="c1">#</span>
+<span class="c1"># Implementation notes:</span>
+<span class="c1"># - Permissions and ownership of files we add are important. We don&#39;t bother to get them correct</span>
+<span class="c1"># outside the VM, as we don&#39;t know the &#39;kiosk&#39; UID in the VM, and it&#39;s easy to forget to chown</span>
+<span class="c1"># 1000:1000 new kiosk-owned files. Instead, we rsync everything to kiosk:/opt/kiosk/template/ and</span>
+<span class="c1"># run /opt/kiosk/kioskify, which bulk-fixes /opt/kiosk/template/ permissions and ownership before</span>
+<span class="c1"># copying the files to /.</span>
+<span class="c1"># - Assuming &#39;kiosk&#39; is from Virtualbox, we could have mounted ./copied-to-kiosk/opt/kiosk/template/opt/kiosk/ as a</span>
+<span class="c1"># shared folder, but that requires installing Virtualbox Guest Additions, which is a palaver.</span>
+
+<span class="nv">KIOSKMODE_GRUB_PASSWORD</span><span class="o">=</span>kioskmaker
+
+fail<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$*</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+
+<span class="c1"># Export vars so </span>
+edit_kiosk_dconf<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">HOME</span><span class="o">=</span><span class="nv">$PWD</span>/copied-to-kiosk/opt/kiosk/template/home/kiosk
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="nv">$HOME</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;Could not find </span><span class="nv">$HOME</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dbus-launch<span class="w"> </span>--sh-syntax<span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">XDG_RUNTIME_DIR</span><span class="o">=</span>/tmp/kiosk-runtime-user
+<span class="w">    </span><span class="nb">trap</span><span class="w"> </span><span class="s1">&#39;kill &quot;$DBUS_SESSION_BUS_PID&quot;&#39;</span><span class="w"> </span>TERM<span class="w"> </span>EXIT
+<span class="o">}</span>
+
+<span class="c1"># Customize the kiosk user&#39;s desktop background (for configuration mode), before we copy files onto</span>
+<span class="c1"># the VM.</span>
+<span class="c1"># If you want to change the blue/black gradient, change that here.</span>
+<span class="c1"># To use a custom background image, first copy it to:</span>
+<span class="c1"># ./copied-to-kiosk/opt/kiosk/template/home/kiosk/.local/share/backgrounds/</span>
+<span class="c1"># then edit the &#39;picture-uri&#39; line below.</span>
+<span class="c1">#</span>
+<span class="c1"># These commands alter ./copied-to-kiosk/opt/kiosk/template/home/kiosk/.config/dconf/user which is a</span>
+<span class="c1"># binary registry, requiring us to fire up a temporary dbus process to edit it. An alternative would</span>
+<span class="c1"># be to run the kiosk VM, log in (read/write), manually change desktop settings as desired, then</span>
+<span class="c1"># rsync the ~kiosk/.config/dconf/user file from the VM to the ./copied-to-kiosk location.</span>
+setbackground<span class="o">()</span><span class="w"> </span><span class="o">(</span>
+<span class="w">    </span><span class="c1"># https://askubuntu.com/a/973307/528035</span>
+<span class="w">    </span><span class="c1">#https://github.com/GNOME/gsettings-desktop-schemas/blob/master/schemas/org.gnome.desktop.background.gschema.xml.in</span>
+<span class="w">    </span>bgset<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span>gsettings<span class="w"> </span><span class="nb">set</span><span class="w"> </span>org.gnome.desktop.background<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="w">    </span>bgreset<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span>gsettings<span class="w"> </span>reset<span class="w"> </span>org.gnome.desktop.background<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Before:&quot;</span>
+<span class="w">    </span>gsettings<span class="w"> </span>list-recursively<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>background
+
+<span class="w">    </span>bgreset<span class="w"> </span>picture-uri
+<span class="w">    </span>bgset<span class="w"> </span>picture-uri<span class="w"> </span><span class="s1">&#39;file:///home/kiosk/.local/share/backgrounds/kioskmaker.svg&#39;</span>
+<span class="w">    </span>bgset<span class="w"> </span>picture-uri-dark<span class="w"> </span><span class="s1">&#39;file:///home/kiosk/.local/share/backgrounds/kioskmaker.svg&#39;</span>
+<span class="w">    </span>gsettings<span class="w"> </span><span class="nb">set</span><span class="w"> </span>org.gnome.desktop.screensaver<span class="w"> </span>picture-uri<span class="w">  </span><span class="s1">&#39;file:///home/kiosk/.local/share/backgrounds/kioskmaker.svg&#39;</span>
+<span class="w">    </span><span class="c1">#bgset picture-options &#39;zoom&#39; # Scale the bg image to the desktop size</span>
+<span class="w">    </span>bgset<span class="w"> </span>picture-options<span class="w"> </span><span class="s1">&#39;zoom&#39;</span>
+<span class="w">    </span><span class="c1"># The shading colours are irrelevant when a picture is set, but if picture-options is set to &#39;none&#39; these take effect</span>
+<span class="w">    </span>bgset<span class="w"> </span>primary-color<span class="w"> </span><span class="s1">&#39;#000000&#39;</span><span class="w"> </span><span class="c1"># Black </span>
+<span class="w">    </span>bgset<span class="w"> </span>secondary-color<span class="w"> </span><span class="s1">&#39;#0b406b&#39;</span><span class="w"> </span><span class="c1"># Blue</span>
+<span class="w">    </span>bgset<span class="w"> </span>color-shading-type<span class="w"> </span><span class="s1">&#39;vertical&#39;</span><span class="w"> </span><span class="c1"># Gradient direction</span>
+<span class="w">    </span><span class="c1"># Doesn&#39;t seem to work. Would be nice if we could display url.txt</span>
+<span class="w">    </span><span class="c1">#bgset show-desktop-icons &#39;true&#39;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;After:&quot;</span>
+<span class="w">    </span>gsettings<span class="w"> </span>list-recursively<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>background
+<span class="o">)</span>
+
+disable_upgrades<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Something wrong here - org.gnome.software doesn&#39;t exist</span>
+<span class="w">    </span><span class="c1">#gsettings set org.gnome.software download-updates false</span>
+<span class="w">    </span><span class="c1">#gsettings set org.gnome.software download-updates-notify false</span>
+<span class="w">    </span><span class="c1">#gsettings set org.gnome.software allow-updates false</span>
+<span class="w">    </span><span class="c1">#gsettings set org.gnome.software allow-upgrade false</span>
+<span class="w">    </span>:
+<span class="o">}</span>
+
+sync_files_on_kiosk<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Install rsync so repeated runs are fast</span>
+<span class="w">    </span>./sshkiosk<span class="w"> </span><span class="s2">&quot;command -v rsync &amp;&gt;/dev/null || dnf install -y rsync&quot;</span>
+<span class="w">    </span>rsync<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;ssh -F ./ssh_config_kioskclient&quot;</span><span class="w"> </span>-rlR<span class="w"> </span>./copied-to-kiosk/./opt/kiosk<span class="w"> </span>kiosk:/<span class="w"> </span>-v<span class="w"> </span>--delete
+<span class="w">    </span><span class="c1"># kioskify creates the &#39;kiosk&#39; user, copies /opt/kiosk/template to / and does other setup tasks</span>
+<span class="o">}</span>
+
+<span class="c1"># Set grub password required to switch from ro to rw mode.</span>
+set_grub_password<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span>binary
+<span class="w">    </span><span class="nv">binary</span><span class="o">=</span>/usr/bin/grub2-mkpasswd-pbkdf2<span class="w">    </span><span class="c1"># as on Redhat OSes</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-x<span class="w"> </span><span class="nv">$binary</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">binary</span><span class="o">=</span>/usr/bin/grub-mkpasswd-pbkdf2<span class="w">    </span><span class="c1"># as on Ubuntu</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-x<span class="w"> </span><span class="nv">$binary</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;Cannot find </span><span class="nv">$binary</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span>passhash
+<span class="w">    </span><span class="c1"># Simulate logic in /usr/sbin/grub2-set-password on almalinux (not present on ubuntu)</span>
+<span class="w">    </span><span class="nv">passhash</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$KIOSKMODE_GRUB_PASSWORD</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$KIOSKMODE_GRUB_PASSWORD</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="o">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="nv">LC_ALL</span><span class="o">=</span>C<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$binary</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s1">&#39;[eE]nter password:&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;s/PBKDF2 hash of your password is //&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Setting grub password &#39;</span><span class="nv">$KIOSKMODE_GRUB_PASSWORD</span><span class="s2">&#39;, hash: </span><span class="nv">$passhash</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;GRUB2_PASSWORD=</span><span class="nv">$passhash</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>./copied-to-kiosk/opt/kiosk/template/boot/grub2/user.cfg
+<span class="o">}</span>
+
+./sshkiosk<span class="w"> </span>--init
+<span class="c1"># Update template files before copying to kiosk</span>
+./copied-to-kiosk/opt/kiosk/template/tmp/chrome/fetch-chrome<span class="w">   </span><span class="c1"># Get and cache the Chrome RPM</span>
+
+<span class="o">(</span>
+:
+<span class="w">    </span>edit_kiosk_dconf
+<span class="w">    </span>setbackground
+<span class="w">    </span><span class="c1">#disable_upgrades</span>
+<span class="o">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
+
+set_grub_password
+./docs-src/build
+rsync<span class="w"> </span>-rR<span class="w"> </span>./docs/./<span class="w"> </span>./copied-to-kiosk/opt/kiosk/template/var/www/kiosk/docs
+sync_files_on_kiosk
+./sshkiosk<span class="w"> </span>/opt/kiosk/kioskify
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;VM has been kioskified. You may now reboot it, and should expect to see kiosk grub boot options&quot;</span>
+
+
+<span class="c1"># vim: set tw=100:</span>
+</code></pre></div>
+<p>Before running <code>02_kioskify-vm</code>, edit it and change <code>KIOSKMODE_GRUB_PASSWORD</code> to a unique password. This password will be needed later if you want to convert a locked-down kiosk back to 'configuration mode'.</p>
+<p>When running <code>./02_kioskify-vm</code> there will be a lot of text output, which <em>must</em> end with the <code>VM has been kioskified</code> line. If not, the script failed part-way and you will have to examine it and debug.</p>
+<div class="admonition note">
+<p class="admonition-title">If kioskify fails...</p>
+<p>The <code>02_kioskify-vm</code> script copies <code>./copied-to-kiosk/opt/kiosk</code> to <code>/opt/kiosk</code> on the VM, and then invokes <code>/opt/kiosk/kioskify</code> inside the VM. If anything breaks, you can edit <code>./copied-to-kiosk/opt/kiosk/kioskify</code> locally, then re-run <code>./02_kioskify-vm</code> to deploy and re-run it. <code>/opt/kiosk/kioskify</code> is idempotent and can be run as many times as necessary. See <a href="opt-kiosk-contents.html">opt/kiosk-contents</a></p>
+</div>
+<p>Reboot the now-kioskified VM (e.g. <code>ssh kiosk reboot</code>). It should boot with 3 Grub boot options:</p>
+<p><img alt="" src="img/grub.png" /></p>
+<p>Choose the 'read-write' option.</p>
+<p><img alt="" src="img/configmode.png" /></p>
+<p>Your Virtualbox VM is now in the KioskMaker configuration state, ready to be packaged. You might like to save an image of the VM.</p>
+<p>Now shut down the kiosk VM <em>very carefully</em> by running <code>ssh kiosk shutdown now</code>, <em>not</em> by simply powering down the VM. Powering down the VM would leave the disk filesystem in a dirty state.</p>
+<h1 id="recreating-the-raw-disk-image">Recreating the raw disk image</h1>
+<p>We can now generate a 'raw' image of the kiosk.</p>
+<p>Proceed as above with <code>01_createkiosk_virtualbox</code> and <code>02_kioskify-vm</code>.  Then run <code>03_create_disk_image</code>:</p>
+<div class="highlight"><span class="filename">Output</span><pre><span></span><code>jturner@jturner-desktop:~/kioskmaker$<span class="w"> </span>./03_create_disk_image<span class="w"> </span>--wipe
++<span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span><span class="s1">&#39;/home/jturner/VirtualBox VMs/kiosk10/kiosk10.img&#39;</span>
++<span class="w"> </span>vboxmanage<span class="w"> </span>internalcommands<span class="w"> </span>converttoraw<span class="w"> </span><span class="s1">&#39;/home/jturner/VirtualBox VMs/kiosk10/kiosk10.vdi&#39;</span><span class="w"> </span><span class="s1">&#39;/home/jturner/VirtualBox VMs/kiosk10/kiosk10.img&#39;</span>
+Warning:<span class="w"> </span>program<span class="w"> </span>compiled<span class="w"> </span>against<span class="w"> </span>libxml<span class="w"> </span><span class="m">212</span><span class="w"> </span>using<span class="w"> </span>older<span class="w"> </span><span class="m">209</span>
+Converting<span class="w"> </span>image<span class="w"> </span><span class="s2">&quot;/home/jturner/VirtualBox VMs/kiosk10/kiosk10.vdi&quot;</span><span class="w"> </span>with<span class="w"> </span>size<span class="w"> </span><span class="m">8589934592</span><span class="w"> </span>bytes<span class="w"> </span><span class="o">(</span>8192MB<span class="o">)</span><span class="w"> </span>to<span class="w"> </span>raw...
++<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;kiosk.img generated. Contents (fdisk -l):&#39;</span>
+kiosk.img<span class="w"> </span>generated.<span class="w"> </span>Contents<span class="w"> </span><span class="o">(</span>fdisk<span class="w"> </span>-l<span class="o">)</span>:
++<span class="w"> </span>fdisk<span class="w"> </span>-l<span class="w"> </span><span class="s1">&#39;/home/jturner/VirtualBox VMs/kiosk10/kiosk10.img&#39;</span>
+Disk<span class="w"> </span>/home/jturner/VirtualBox<span class="w"> </span>VMs/kiosk10/kiosk10.img:<span class="w"> </span><span class="m">8</span><span class="w"> </span>GiB,<span class="w"> </span><span class="m">8589934592</span><span class="w"> </span>bytes,<span class="w"> </span><span class="m">16777216</span><span class="w"> </span>sectors
+Units:<span class="w"> </span>sectors<span class="w"> </span>of<span class="w"> </span><span class="m">1</span><span class="w"> </span>*<span class="w"> </span><span class="nv">512</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">512</span><span class="w"> </span>bytes
+Sector<span class="w"> </span>size<span class="w"> </span><span class="o">(</span>logical/physical<span class="o">)</span>:<span class="w"> </span><span class="m">512</span><span class="w"> </span>bytes<span class="w"> </span>/<span class="w"> </span><span class="m">512</span><span class="w"> </span>bytes
+I/O<span class="w"> </span>size<span class="w"> </span><span class="o">(</span>minimum/optimal<span class="o">)</span>:<span class="w"> </span><span class="m">512</span><span class="w"> </span>bytes<span class="w"> </span>/<span class="w"> </span><span class="m">512</span><span class="w"> </span>bytes
+Disklabel<span class="w"> </span>type:<span class="w"> </span>gpt
+Disk<span class="w"> </span>identifier:<span class="w"> </span>6C8DCAED-4D3A-45A4-A23B-40F7CD002E03
+
+Device<span class="w">                                              </span>Start<span class="w">      </span>End<span class="w">  </span>Sectors<span class="w">  </span>Size<span class="w"> </span>Type
+/home/jturner/VirtualBox<span class="w"> </span>VMs/kiosk10/kiosk10.img1<span class="w">    </span><span class="m">2048</span><span class="w">  </span><span class="m">1230847</span><span class="w">  </span><span class="m">1228800</span><span class="w">  </span>600M<span class="w"> </span>EFI<span class="w"> </span>System
+/home/jturner/VirtualBox<span class="w"> </span>VMs/kiosk10/kiosk10.img2<span class="w"> </span><span class="m">1230848</span><span class="w">  </span><span class="m">3327999</span><span class="w">  </span><span class="m">2097152</span><span class="w">    </span>1G<span class="w"> </span>Linux<span class="w"> </span>filesystem
+/home/jturner/VirtualBox<span class="w"> </span>VMs/kiosk10/kiosk10.img3<span class="w"> </span><span class="m">3328000</span><span class="w"> </span><span class="m">16775167</span><span class="w"> </span><span class="m">13447168</span><span class="w">  </span><span class="m">6</span>.4G<span class="w"> </span>Linux<span class="w"> </span>LVM
+</code></pre></div>
+<div class="highlight"><span class="filename">03_create_disk_image</span><pre><span></span><code><span class="ch">#!/bin/bash -eu</span>
+<span class="c1"># Creates a raw disk image of kiosk.vdi suitable for writing to a physical hard disk.</span>
+
+fail<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$*</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="nv">k</span><span class="o">=</span>kiosk
+<span class="nv">vmbase</span><span class="o">=</span>~/VirtualBox<span class="se">\ </span>VMs
+<span class="nv">base</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$vmbase</span><span class="s2">/</span><span class="nv">$k</span><span class="s2">/</span><span class="nv">$k</span><span class="s2">&quot;</span>
+
+<span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$base</span><span class="s2">.vdi&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;Missing </span><span class="nv">$base</span><span class="s2">.vdi. Run ./01_createkiosk_virtualbox and ./02_kioskify-vm&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="nv">$base</span>.img<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="si">${</span><span class="nv">1</span><span class="p">-</span><span class="si">}</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span>--wipe<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>fail<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$base</span><span class="s2">.img already exists. Pass --wipe to delete it&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">set</span><span class="w"> </span>-x
+<span class="w">    </span>rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$base</span><span class="s2">.img&quot;</span>
+<span class="w">    </span>vboxmanage<span class="w"> </span>internalcommands<span class="w"> </span>converttoraw<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$base</span><span class="s2">.vdi&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$base</span><span class="s2">.img&quot;</span>
+<span class="w">    </span><span class="c1"># This also works:</span>
+<span class="w">    </span><span class="c1">#qemu-img convert -f vdi -O raw &quot;$base.vdi&quot; &quot;$base.img&quot;</span>
+
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;kiosk.img generated. Contents (fdisk -l):&quot;</span>
+<span class="w">    </span>fdisk<span class="w"> </span>-l<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$base</span><span class="s2">.img&quot;</span>
+<span class="k">fi</span>
+</code></pre></div>
+<p>You now have an image that can be <code>dd</code>'ed straight to the disk of a kiosk. See <code>./04_burn_physical_disk</code> for how to do that:</p>
+<div class="highlight"><span class="filename">04_burn_physical_disk</span><pre><span></span><code><span class="ch">#!/bin/bash -eu</span>
+<span class="c1"># Writes the kiosk.img raw disk image to a /dev/disk device.</span>
+
+<span class="nv">vmbase</span><span class="o">=</span>~/VirtualBox<span class="se">\ </span>VMs
+<span class="nv">k</span><span class="o">=</span>kiosk
+<span class="nv">base</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$vmbase</span><span class="s2">/</span><span class="nv">$k</span><span class="s2">/</span><span class="nv">$k</span><span class="s2">&quot;</span>
+
+fail<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$*</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+
+<span class="c1"># Specify path of a physical disk here</span>
+<span class="c1">#dev=&quot;/dev/disk/by-id/ata-Samsung_SSD_840_EVO_250GB_S1DBNSAFC17384M&quot;</span>
+<span class="nv">dev</span><span class="o">=</span><span class="s2">&quot;/dev/disk/by-id/ata-SPCC_Solid_State_Disk_A20231027S3051211573&quot;</span>
+
+<span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">    </span>--usb<span class="o">)</span><span class="w"> </span>
+<span class="w">        </span><span class="nv">usb</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span>/dev/disk/by-id/usb*:0<span class="k">)</span>
+<span class="w">        </span><span class="o">[[</span><span class="w"> </span>-n<span class="w"> </span><span class="nv">$usb</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;USB not inserted&quot;</span>
+<span class="w">        </span><span class="o">[[</span><span class="w"> </span><span class="nv">$usb</span><span class="w"> </span><span class="o">=</span>~<span class="w"> </span><span class="se">\s</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;Multiple USBs found - or the USB-identifying glob is incorrect: «</span><span class="nv">$usb</span><span class="s2">»&quot;</span>
+<span class="w">        </span><span class="nv">dev</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$usb</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span>--zfs<span class="o">)</span>
+<span class="w">        </span><span class="c1"># For testing, this uses a ZFS zvol device. Customize for your ZFS filesystem</span>
+<span class="w">        </span><span class="nv">fs</span><span class="o">=</span>secondary2023/kiosk
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Using zvol </span><span class="nv">$fs</span><span class="s2">&quot;</span>
+<span class="w">        </span>zfs<span class="w"> </span>list<span class="w"> </span>-Ht<span class="w"> </span>volume<span class="w"> </span>-o<span class="w"> </span>name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$fs</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>sudo<span class="w"> </span>zfs<span class="w"> </span>create<span class="w"> </span>-V<span class="w"> </span>8G<span class="w"> </span><span class="nv">$fs</span>
+<span class="w">        </span><span class="nv">dev</span><span class="o">=</span>/dev/zvol/<span class="nv">$fs</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span>--help<span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Usage: </span><span class="nv">$0</span><span class="s2"> [--zfs|--usb]&quot;</span>
+<span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="k">esac</span>
+
+<span class="nv">dev</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>readlink<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$dev</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">if</span><span class="w"> </span>grep<span class="w"> </span>^<span class="s2">&quot;</span><span class="nv">$dev</span><span class="s2">&quot;</span><span class="w"> </span>/proc/mounts<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>fail<span class="w"> </span><span class="s2">&quot;Please unmount partitions of </span><span class="nv">$dev</span><span class="s2"> - otherwise they will not be readable from within the VM&quot;</span>
+<span class="k">fi</span>
+
+<span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="nv">$base</span>.img<span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;Missing </span><span class="nv">$base</span><span class="s2">.img. First run 03_create_disk_image&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">$dev</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">time</span><span class="w"> </span>sudo<span class="w"> </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$base</span><span class="s2">.img&quot;</span><span class="w"> </span><span class="nv">of</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$dev</span><span class="s2">&quot;</span><span class="w"> </span><span class="nv">bs</span><span class="o">=</span>1M<span class="w"> </span><span class="nv">status</span><span class="o">=</span>progress
+<span class="w">    </span>sync
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Please connect disk </span><span class="nv">$dev</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+</code></pre></div>
+<p>In my case, the kiosks run on SATA SSDs which are hot-pluggable (at least on my computer). This allowed fairly rapid burning of multiple SSDs - just editing <code>$dev</code> in the above script.  The SSDs were later installed into kiosks.</p>
+<h1 id="addendum-choice-of-base-os">Addendum: Choice of base OS</h1>
+<p>KioskMaker is currently built on AlmaLinux. These were the criteria considered:</p>
+<h2 id="windows">Windows?</h2>
+<p><a href="https://learn.microsoft.com/en-us/windows/configuration/kiosk/">Windows has a Kiosk mode</a>, and it is apparently possible to make Windows 10+ read-only with the <a href="https://learn.microsoft.com/en-us/windows/configuration/unified-write-filter/">Unified Write Filter</a>. I did not explore this, on the assumption that telemetry, Cortana, and other junk would be too hard to remove, and Window LTSC edition too hard to (legally) obtain.</p>
+<h2 id="driver-availability-and-secure-boot-friendliness">Driver availability and Secure Boot friendliness</h2>
+<p>If your kiosk runs on specialized hardware, you'll need to check driver availability.</p>
+<p>My target kiosk hardware is a <a href="https://selinc.com/products/3350/">SEL-3350</a> fanless computer designed for running in substations and other industrial settings. SEL provides drivers for Red Hat (RHEL) and Debian-derived operating systems. This eliminates a few possibilities like Porteus (Slackware-based), NixOS and Alpine.</p>
+<p>RHEL or Debian?  Again, drivers may be a factor. Ideally you want drivers signed for your kernel version. DKMS drivers require turning off Secure Boot in the BIOS, or enrolling the DKMS signing key in the BIOS of every deployed kiosk. Neither option is appealing.</p>
+<h2 id="kiosk-mode-support">Kiosk mode support</h2>
+<p>By 'kiosk', we mean a computer that automatically starts one app, without login, with minimal UI distractions, locked down to prevent accidental or malicious changes. There are some common options:</p>
+<h3 id="1-gnome-kiosk">1) <code>gnome-kiosk</code></h3>
+<p>In RHEL/Gnome, the minimal one-app kiosk environment is supported directly by the <code>gnome-kiosk</code> and <code>gnome-kiosk-script-session</code> packages, and documented <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/customizing_the_gnome_desktop_environment/assembly_restricting-the-session-to-a-single-application_customizing-the-gnome-desktop-environment#assembly_restricting-the-session-to-a-single-application_customizing-the-gnome-desktop-environment">by redhat</a>. <code>gnome-kiosk</code> is not available in Debian/Ubuntu. This is the solution KioskMaker uses.</p>
+<h3 id="2-ubuntu-core">2) Ubuntu Core</h3>
+<p>The <em>canonical</em> way to make a kiosk out of Ubuntu is to <a href="https://mir-server.io/docs/make-a-secure-ubuntu-web-kiosk">build on Ubuntu Core</a>, with the <code>wpe-webkit-mir-kiosk</code> snap. Ubuntu Core is snap-based, completely containerized and optimized for security. However, in practice:
+ - The focus on containerization and security makes development complicated, cumbersome and slow. Any changes must be packaged as 'gadget snaps', defined in a model, and the OS rebuilt. OS hangs are almost impossible to debug.
+ - <code>wpe-webkit-mir-kiosk</code> is, as the name suggests, Webkit-based, whereas we want Chrome for maximum compatibility. Apparently Chrome is too difficult to containerize, so there is no <code>wpe-chrome-mir-kiosk</code>.
+ - The documentation is incomplete and the project seems half-abandoned. Possibly because Mir (the technical base) is a technological dead end, a Wayland alternative part of the now-abandoned Unity desktop environment, later repurposed for 'IoT'.</p>
+<h3 id="3-customized-window-manager">3) Customized window manager</h3>
+<p>To get a minimal kiosk-like effect, we could also have used Gnome Shell with extensions (<a href="https://extensions.gnome.org/extension/4099/no-overview/">1</a>, <a href="https://extensions.gnome.org/extension/545/hide-top-bar/">2</a>) and tweaks hiding as much UI as possible.  The problem with this approach is that we <em>also</em> want Gnome Shell used in 'configuration mode' to not be locked down. We would need two distinct copies of <code>/home/kiosk</code> for ro and rw modes. It is simpler to have the <code>kiosk</code> user's Gnome Shell environment used only for rw mode, and <code>gnome-kiosk</code> used for ro mode.</p>
+<p>Besides Gnome Shell, there are any number of naturally minimalist stripped-down window managers that would work, or simply <code>.xinitrc</code> launching a browser. <code>gnome-kiosk</code> is just simpler, and handles restarts of the app correctly.</p>
+<h2 id="read-only-support">Read-only support</h2>
+<p>When in kiosk mode, the disk must be read-only, with any apparent writing (e.g. browser caches) going to RAM. Power-cycling the kiosk must restore it to its original condition.</p>
+<p>Redhat-derived distributions natively support this through the <code>readonly-root</code> package. The <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/managing_file_systems/index#setting-read-only-permissions-for-the-root-file-system_managing-file-systems">documentation</a> describes how to mark particular directories, like <code>/home/kiosk</code> as in-RAM overlays of the underlying disk.</p>
+<p>Debian-derived distributions also support this via the <code>overlayroot</code> package. There is little documentation, but it worked as expected.</p>
+<h3 id="full-or-minimal">Full or minimal?</h3>
+<p>Initially I started with the AlmaLinux 'minimal' iso, and added just enough packages required to get Gnome running. However, 'just enough' is hard to determine, and configuration is flaky. For instance, with  my hand-picked packages:
+ - Gnome settings app hangs when I try to set the timezone automatically.
+ -  There's a strange white block between hour and date:
+   <img alt="" src="img/desktop_whitebox.png" />
+ - if 'nautilus' isn't present, one cannot pick a background image file.</p>
+<p>The disk size difference is 4.1Gb (minimal + packages) vs. 4.9Gb (desktop), so in the end I switched to desktop.</p>
+<h2 id="summary">Summary</h2>
+<p>AlmaLinux ticks all the required boxes:</p>
+<ul>
+<li>Secure boot friendly drivers available</li>
+<li>Well-documented kiosk mode</li>
+<li>Well-documented read-only mode</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2025 Jeff Turner</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="js/base.js"></script>
+        <script src="search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
