@@ -18,15 +18,13 @@ theme:
     repo: fontawesome/brands/github
     #  custom_dir: material/overrides
   features:
-    - navigation.instant
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.expand
     - navigation.sections
 
-repo_url: https://github.com/redradishtech/KioskMaker
-repo_name: redradishtech/KioskMaker
-edit_uri: /blob/main/docs-src/docs/
+repo_url: https://github.com/redradishtech/KioskMaker/
+edit_uri: blob/main/docs-src/docs/
 
 markdown_extensions:
   - toc
