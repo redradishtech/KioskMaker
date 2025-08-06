@@ -125,7 +125,7 @@ Device                                              Start      End  Sectors  Siz
 /home/jturner/VirtualBox VMs/kiosk10/kiosk10.img3 3328000 16775167 13447168  6.4G Linux LVM
 ```
 
-```bash title="03_createraw"
+```bash title="03_create_disk_image"
 --8<-- "03_create_disk_image"
 ```
 

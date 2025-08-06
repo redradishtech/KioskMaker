@@ -9,6 +9,19 @@ hide:
 [![GitHub
 Repo](https://img.shields.io/badge/GitHub-KioskMaker-blue?logo=github)](https://github.com/redradishtech/KioskMaker)
 
+<figure class="video_container">
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/hHzMNW31T1Q"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen>
+  </iframe>
+  <figcaption>Watch on YouTube: <a href="https://www.youtube.com/watch?v=hHzMNW31T1Q">KioskMaker tour: build your own locked down browser-only operating system</a></figcaption>
+</figure>
+
 Say you need a 'kiosk' -- a computer that can only do one thing: run a browser with a particular URL. Our goals are:
 
  - The computer must boot straight into the browser, with no interaction
@@ -55,7 +68,6 @@ When in locked down 'kiosk' mode:
 # This project
 
 KioskMaker is a set of scripts [on github](https://github.com/redradishtech/KioskMaker) for building such a kiosk, based on [AlmaLinux](https://almalinux.org/), and targeting x86_64 hardware capable of running Chrome. You feed the scripts a downloaded AlmaLinux `.iso`, and end with a raw disk image of a customized operating system, which you can write directly to the hard disk of a kiosk.
-
 
 
 ### Security
