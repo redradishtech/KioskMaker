@@ -59,9 +59,11 @@ Edit `ks.cfg` and run `./01_createkiosk_virtualbox`.  If all goes well, a fresh 
 
 ![](img/vbox_created.png)
 
+Kick off the installation:
+
 ![](img/alma_grub.png)
 
-After kicking off the installation, no further interaction should be required from you. The installation should automatically start:
+No further interaction should be required from you. The installation should automatically start:
 ![](img/alma_installing.png)
 
 Once the installer completes you can reboot, and the VM should boot into a terminal prompt. You now have a clean AlmaLinux ready to be turned into a kiosk.
@@ -84,7 +86,7 @@ When running `./02_kioskify-vm` there will be a lot of text output, which *must*
 
 Reboot the now-kioskified VM (e.g. `ssh kiosk reboot`). It should boot with 3 Grub boot options:
 
-![](img/docs/img/grub.png)
+![](img/grub.png)
 
 
 Choose the 'read-write' option.
@@ -181,7 +183,7 @@ Debian-derived distributions also support this via the `overlayroot` package. Th
 Initially I started with the AlmaLinux 'minimal' iso, and added just enough packages required to get Gnome running. However, 'just enough' is hard to determine, and configuration is flaky. For instance, with  my hand-picked packages:
  - Gnome settings app hangs when I try to set the timezone automatically.
  -  There's a strange white block between hour and date:
-   ![](img/Pasted image 20250805113023.png)
+   ![](img/desktop_whitebox.png)
  - if 'nautilus' isn't present, one cannot pick a background image file.
 
 The disk size difference is 4.1Gb (minimal + packages) vs. 4.9Gb (desktop), so in the end I switched to desktop.
