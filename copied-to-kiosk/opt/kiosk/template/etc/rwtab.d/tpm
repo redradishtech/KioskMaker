@@ -1,0 +1,2 @@
+#  systemd-tmpfiles[847]: Setting default ACL "u::rwx,g::rwx,g:tss:rwx,m::rwx,o::r-x" on /var/lib/tpm2-tss/system/keystore failed: Read-only file system
+files /var/lib/tpm2-tss

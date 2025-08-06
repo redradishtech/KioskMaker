@@ -1,0 +1,13 @@
+[Desktop Entry]
+# Launch Chrome in kiosk mode, pointing to a hardcoded website.
+# This .desktop file is symlinked into ~/.config/autostart/ for Gnome sessions.
+# For locked-down mode it is unused - /usr/local/bin/gnome-kiosk-script invokes /usr/local/bin/chrome-kiosk directly.
+Version=1.0
+Name=Chrome Kiosk
+Comment=Chrome in kiosk mode, loading ~/url.txt
+Type=Application
+Exec=/usr/local/bin/chrome-kiosk
+# Google's current (Aug/25) RPM doesn't put the 'google-chrome' icon in the right place, so we hardcode the .png path
+#Icon=google-chrome
+Icon=/opt/google/chrome/product_logo_24.png
+# Note: this .desktop file used to be in ~/.local/share/applications invoking ~/.local/bin/gnome-kiosk-script, but 'Exec' cannot use '~' for "home directory", meaning it cannot be reused by ~kiosk-template and ~kiosk. So we're forced to install it globally in /usr

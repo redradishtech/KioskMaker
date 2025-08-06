@@ -1,0 +1,2 @@
+# Jul 14 08:54:45 kiosk packagekitd[6104]: History database is not writable: SQLite error on "/var/lib/dnf/history.sqlite": Executing an SQL statement failed: attempt to write a readonly database
+files /var/lib/dnf

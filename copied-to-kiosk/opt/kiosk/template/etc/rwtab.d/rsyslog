@@ -1,0 +1,2 @@
+#  https://bugzilla.redhat.com/show_bug.cgi?id=1959579
+dirs /var/lib/rsyslog

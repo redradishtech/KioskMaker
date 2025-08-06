@@ -1,0 +1,9 @@
+#!/bin/bash -eu
+shopt -s extglob
+shopt -s globstar
+
+base="$(dirname "$(readlink -f "$0")")"
+cd "$base"
+
+# https://github.com/squidfunk/mkdocs-material/issues/6749
+uv run mkdocs serve

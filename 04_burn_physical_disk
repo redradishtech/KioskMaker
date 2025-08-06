@@ -1,0 +1,45 @@
+#!/bin/bash -eu
+# Writes the kiosk.img raw disk image to a /dev/disk device.
+
+vmbase=~/VirtualBox\ VMs
+k=kiosk
+base="$vmbase/$k/$k"
+
+fail() { echo >&2 "$*"; exit 1; }
+
+# Specify path of a physical disk here
+#dev="/dev/disk/by-id/ata-Samsung_SSD_840_EVO_250GB_S1DBNSAFC17384M"
+dev="/dev/disk/by-id/ata-SPCC_Solid_State_Disk_A20231027S3051211573"
+
+case "${1:-}" in
+	--usb) 
+		usb=$(echo /dev/disk/by-id/usb*:0)
+		[[ -n $usb ]] || fail "USB not inserted"
+		[[ $usb =~ \s ]] || fail "Multiple USBs found - or the USB-identifying glob is incorrect: «$usb»"
+		dev="$usb"
+		;;
+	--zfs)
+		# For testing, this uses a ZFS zvol device. Customize for your ZFS filesystem
+		fs=secondary2023/kiosk
+		echo "Using zvol $fs"
+		zfs list -Ht volume -o name "$fs" 2>/dev/null || sudo zfs create -V 8G $fs
+		dev=/dev/zvol/$fs
+		;;
+	--help)
+		echo "Usage: $0 [--zfs|--usb]"
+		exit 0
+		;;
+esac
+
+dev="$(readlink -f "$dev")"
+if grep ^"$dev" /proc/mounts; then
+	fail "Please unmount partitions of $dev - otherwise they will not be readable from within the VM"
+fi
+
+[[ -f $base.img ]] || fail "Missing $base.img. First run 03_create_disk_image"
+if [[ -e $dev ]]; then
+	time sudo dd if="$base.img" of="$dev" bs=1M status=progress
+	sync
+else
+	echo "Please connect disk $dev"
+fi

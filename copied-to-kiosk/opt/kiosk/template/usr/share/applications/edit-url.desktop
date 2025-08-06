@@ -1,0 +1,9 @@
+[Desktop Entry]
+# For Configuration mode: a shortcut to edit the URL that locked-down Chrome will load.
+# This script is symlinked into ~/.config/autostart/ for Gnome sessions.
+Version=1.0
+Name=Edit Kiosk URL
+Type=Application
+Exec=xdg-open /home/kiosk/url.txt
+Icon=org.gnome.TextEditor
+Terminal=false

@@ -1,0 +1,2 @@
+The desktop is configured to use kioskmaker.png (in ~kiosk/.config/dconf/user, set at image build time by
+02_kioskify-vm). Replace kioskmaker.png with any 1800x1440 image, or load the .xcf file in Gimp to customize the text.

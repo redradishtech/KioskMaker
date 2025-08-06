@@ -1,0 +1,56 @@
+#!/bin/bash -eu
+shopt -s extglob
+shopt -s globstar
+
+main() {
+	command -v uv >/dev/null || fail "Please install uv - https://github.com/astral-sh/uv"
+	base="$(dirname "$(readlink -f "$0")")"
+	cd "$base"
+	convert_obsidian_imagelinks_to_standard
+	uv sync   # create a .venv if necessary
+	uv run mkdocs build "$@"
+	relativize_links
+	verify
+	echo "Done! Docs are in $base/site/"
+}
+
+
+convert_obsidian_imagelinks_to_standard() {
+	# Obsidian uses ![[foo.png]] whereas mkdocs wants ![](foo.png)
+	perl -i -pe 's/!\[\[([^\]]+)\]\]/![]($1)/g' ./docs/*.md
+	# Obsidian also allows ![](foo.png) but we need ![](img/foo.png). This rewrites to the latter
+	perl -i -pe 's{!\[\]\((?!/?img/)([^)]+)\)}{![](img/$1)}g' ./docs/*.md
+}
+
+rewrite() {
+	old="$1" new="$2" perl -i -pe 's,\Q$ENV{old}\E,$ENV{new},g' ./**/*.html
+}
+
+relativize_links() {
+	# https://github.com/squidfunk/mkdocs-material/issues/6749
+	cd "$base/site"
+	rewrite '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' ''
+	grep -hoP '(?<=")https://fonts.googleapis.com/css[^"]+(?=")' **/*.html | sort | uniq | while read f; do
+		export new=$(echo "$f" | md5sum | cut -f1 -d" ").css
+		curl -sLJ -o "$new" "$f"
+		old="$f" perl -i -pe 's,\Q$ENV{old}\E,/$ENV{new},g' ./**/*.html
+	done
+	grep -hoP '(?<=")https://cdnjs[^"]+(?=")' **/*.html | sort | uniq | while read f; do
+		curl -sLOJ "$f"
+		file="$(basename "$f")"
+		echo "Replacing $f with $file"
+		old="$f" new="$file" perl -i -pe 's,$ENV{old},$ENV{new},g' ./**/*.html
+	done
+}
+
+verify() {
+	if grep -P '<link .*https://.*\.(js|css)' "$base"/site/**/*.html; then
+		echo >&2 "Oops, there are still js/css external links in the docs. They will hang on an internet-less kiosk"
+		exit 1
+	fi
+}
+
+
+fail() { echo >&2 "$*"; exit 1; }
+
+main "$@"

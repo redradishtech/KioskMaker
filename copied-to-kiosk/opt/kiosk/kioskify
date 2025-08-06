@@ -1,0 +1,208 @@
+#!/bin/bash -eu
+######################################################################################################
+#
+# Kiosk Setup Script
+#
+# Intended to be run on a clean AlmaLinux 'minimal' install (right after the installer finishes),
+# this script turns the instance into a 'kiosk' automatically booting into a Chrome browser.
+# 
+# Normally this script is only run once when building a kiosk OS master image. For how do use it,
+# see docs embedded at ./template/var/www/kiosk/docs/deploy.html
+#
+#   UPGRADING ALMALINUX
+#
+# jeff@redradishtech.com, 23/Jul/25
+######################################################################################################
+
+# Necessary for the !(...) expression in create_grub_bootopts
+shopt -s extglob
+
+main() {
+	set -x
+	sanitychecks
+	export KERNEL_EXPECTED_VERSION="$(getkernelver)"
+	[[ -n $KERNEL_EXPECTED_VERSION ]] || fail "Could not get kernel ver"
+	apply_template
+	addchrome
+	create_kiosk-release
+	gui
+	quietboot
+	config_journald
+	create_grub_bootopts
+	record_packages
+	update_ca
+	nokernelupgrades
+	echo "The OS has been successfully kioskified! It is in rw mode"
+}
+
+sanitychecks() {
+	[[ -f /etc/redhat-release ]] || fail "Missing /etc/redhat-release. Is this OS the one we want to kioskify??"
+	[[ $(cat /etc/redhat-release) =~ ^AlmaLinux ]] || fail "We only know how to kioskify AlmaLinux (see /etc/redhat-release)"
+	[[ $EUID = 0 ]] || fail "Expected to be run as root"
+	[[ -d /opt/kiosk/template ]] || fail "No template files in /opt/kiosk/template"
+}
+
+# Install Chrome, as per https://linuxiac.com/how-to-install-google-chrome-on-almalinux-rocky-linux/
+addchrome() {
+	# See /opt/kiosk/chrome/README
+	if ! rpm -qi google-chrome-stable >/dev/null; then
+		rpm --import /opt/kiosk/template/tmp/chrome/linux_signing_key.pub
+		dnf localinstall -y /opt/kiosk/template/tmp/chrome/google-chrome-stable_current_x86_64.rpm
+	fi
+}
+
+# Copy /opt/kiosk/template/* to /. See ./README for what all the template files do
+apply_template() {
+	id kiosk &>/dev/null || {
+		useradd kiosk   # Note we don't create the homedir here. We want it empty.
+			echo kiosk | passwd kiosk --stdin
+		}
+	[[ -d /home/kiosk ]] || install -d -o kiosk -g kiosk /home/kiosk
+
+	# Fix template file permissions before we copy them everywhere
+	chown root: /opt/kiosk/template
+	#chown -R root: /opt/kiosk/template/{boot,etc,usr}
+	chown -R kiosk: /opt/kiosk/template/home/kiosk*
+	#chown -R root: /opt/kiosk/template/var/www/kiosk
+	chmod 0600 /opt/kiosk/template/boot/grub2/user.cfg
+
+	rsync -ra --delete /opt/kiosk/template/home/ /home  # --delete as there's nothing in /home we didn't put there 
+	rsync -rl /opt/kiosk/template/ / --exclude '*.template'
+	# Env substitution in *.template files
+	while IFS= read -r -d '' template; do
+		echo >&2 "Processing $template"
+		local target
+		target="${template#/opt/kiosk/template}"
+		target="${target%\.template}"
+		#echo "Regenerating: $target"
+		envsubst '$KERNEL_EXPECTED_VERSION' < "$template" > "$target.new"
+		[[ -s $target.new ]] || fail "Failed to write $template to $template.new, substituting variables (zero sized file?)"
+		if grep -q "KERNEL_EXPECTED_VERSION" "$target.new"; then fail "Failed to replace \${KERNEL_EXPECTED_VERSION} variable when copying $template to $target.new"; fi
+		grep -qF "$KERNEL_EXPECTED_VERSION" "$target.new" || fail "Failed to substitute variable when copying $template to $target.new (no replacement text detected)"
+		# Copy ownership and permissions
+		chmod --reference="$template" "$target.new"
+		chown --reference="$template" "$target.new"
+		mv "$target.new" "$target"
+	done < <(find /opt/kiosk/template -type f -name "*.template" -print0)
+
+	if [[ -f /boot/grub2/user.cfg ]]; then
+		chmod go-rwx /boot/grub2/user.cfg    # user.cfg contains the grub password, required to edit menu items and boot rw when in ro mode. See /usr/local/bin/kioskwritable
+		[[ $(stat -c %a /boot/grub2/user.cfg) = 600 ]] || fail "Wrong permissions on /boot/grub2/user.cfg"
+	fi
+
+	[[ $(stat -c %a /) = 555 ]] || fail "Wrong permissions on /"
+	[[ $(stat -c "%U %G" /) = "root root" ]] || fail "Wrong ownership of /"
+	[[ $(stat -c "%U %G" /home/kiosk) = "kiosk kiosk" ]] || fail "Wrong ownership of /home/kiosk"
+}
+
+# Record the date at which the kiosk image was built, as well as the compatible kernel and driver versions, in /etc/kiosk/kiosk-release, a file analogous to /etc/os-release
+create_kiosk-release() {
+	mkdir -p /etc/kiosk
+	{
+		echo "IMAGE_BUILD_DATE=$(date -Iseconds)"
+		echo "KERNEL_EXPECTED_VERSION=${KERNEL_EXPECTED_VERSION@Q}"
+	} >> /etc/kiosk/kiosk-release
+}
+
+getkernelver() {
+	local arch kernel
+
+	arch="$(uname -m)"   # x86_64
+	kernel="$(grubby --default-kernel)"  # E.g. /boot/vmlinuz-5.14.0-284.11.1.el9_2.x86_64
+	[[ $kernel =~ ^/boot/vmlinuz-(.*)\.$arch ]] || fail "Invalid/unexpected kernel: '$kernel'"
+	echo "${BASH_REMATCH[1]}"
+}
+
+# Install packages needed for GUI. When based on the full AlmaLinux ISO this shouldn't do much, but it will from a
+# 'minimal' ISO base.
+gui() {
+	# https://www.reddit.com/r/Fedora/comments/16tyrvq/my_minimal_fedora_38_gnome_install/
+	#dnf groupinstall "Server with GUI"
+	# nautilus is needed for the file picker when changing the desktop background
+	# gnome-text-editor (gedit replacement) is used for editing url.txt
+	# vim is there for debugging
+	# gnome-kiosk-script-session and readonly-root are for kiosk mode
+	dnf install -y gdm gnome-text-editor nautilus vim gnome-kiosk-script-session readonly-root
+	systemctl set-default graphical.target
+}
+
+# Turn off kernel upgrades, as our kiosk's drivers may be hardcoded (thanks to SecureBoot) to the current kernel.
+nokernelupgrades() {
+	# Versionlock seems the closest thing to apt pinning.
+	# https://www.cyberciti.biz/tips/yum-dnf-pin-package-versions-on-rhel-centos-rocky-oracle-almalinux.html
+	dnf list installed | grep ^python3-dnf-plugin-versionlock.noarch || dnf install -y python3-dnf-plugin-versionlock
+	dnf versionlock 'kernel*' | grep -F "$KERNEL_EXPECTED_VERSION" || fail "Kernel lock failed, or our kernel is not that expected $KERNEL_EXPECTED_VERSION"
+	# Expected output for Almalinux 9.2:
+	# Adding versionlock on: kernel-0:5.14.0-284.11.1.el9_2.*
+	# Adding versionlock on: kernel-modules-core-0:5.14.0-284.11.1.el9_2.*
+	# Adding versionlock on: kernel-modules-0:5.14.0-284.11.1.el9_2.*
+	# Adding versionlock on: kernel-tools-libs-0:5.14.0-284.11.1.el9_2.*
+	# Adding versionlock on: kernel-tools-0:5.14.0-284.11.1.el9_2.*
+	# Adding versionlock on: kernel-core-0:5.14.0-284.11.1.el9_2.*
+
+
+	# This seems a poor solution, as it prevents 'dnf list installed' from showing kernel packages.
+	#grep -q ^exclude=kernel /etc/dnf/dnf.conf || {
+	#	echo "# Prevent kernel upgrades for the sake of sel drivers"
+	#	echo "exclude=kernel*"
+	#} >> /etc/dnf/dnf.conf
+
+	# Internet says this may help stopping dnf auto-refreshing its cache
+	systemctl stop --now dnf-makecache.timer
+	systemctl disable dnf-makecache.timer
+}
+
+# Hide all the text scrolling by on boot. This is hidden by default in the full install, but not server
+quietboot() {
+	grubby --update-kernel=ALL --args="rhgb quiet"
+}
+
+# For debugging
+noquietboot() {
+	grubby --update-kernel=ALL --remove-args="quiet"
+	grubby --update-kernel=ALL --remove-args="rhgb"
+}
+
+
+# When debugging, and in rw mode, enable this to preserve the systemd journal across reboots
+config_journald() {
+	# https://gist.github.com/JPvRiel/b7c185833da32631fa6ce65b40836887
+	echo "FIXME: this causes imjournal to write to /var/lib/rsyslog"
+	chown root: /
+	mkdir -p /var/log/journal
+	systemd-tmpfiles --create --prefix /var/log/journal
+	systemctl restart systemd-journald
+}
+
+create_grub_bootopts() (
+	# We will have copied /opt/kiosk/template/boot/loader/entries/{ro,rw}.conf earlier.
+	cd /boot/loader/entries
+	[[ -f ro.conf ]] || fail 
+	[[ -f rw.conf ]] || fail 
+	ls -la
+	rm -f !(ro.conf|rw.conf|README.KIOSK) # Remove grub entries not in this list, i.e. the 'rescue' boot entry
+	ls -la
+	# Set rw.conf as the default. This command was figured out by reading the grubby source code in /usr/libexec/grubby/grubby-bls line 857. It is also run by /usr/local/bin/kioskwritable
+	grub2-editenv /boot/grub2/grubenv set saved_entry=rw
+)
+
+record_packages() {
+	# Record package state when the kiosk was installed, to check if any updates have been made
+	# The --exclude= overrides any exclude=kernel* in /etc/dnf/dnf.conf
+	dnf list installed --exclude= > /etc/kiosk/packages-on-install
+}
+
+update_ca() {
+	# Add .pem files of CAs you want Chrome to trust into /etc/pki/ca-trust/source/anchors/
+	#openssl x509 -noout  -subject < /etc/pki/ca-trust/source/anchors/myca.pem >/dev/null || fail "Missing myca.pem??"
+	if ls -1 /etc/pki/ca-trust/source/anchors/ 2>/dev/null | grep -q .; then
+		update-ca-trust
+	fi
+	#trust list | grep -q 'MyCA' || fail "CA has not been registered with OS. https:// links may be untrusted"
+}
+
+fail() { echo >&2 "${*:-Error at function ${FUNCNAME[1]}, line: ${BASH_LINENO[0]}}"; exit 1; }
+
+main "$@"
+
+# vim: set bg=dark:

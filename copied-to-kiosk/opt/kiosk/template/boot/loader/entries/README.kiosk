@@ -1,0 +1,10 @@
+The 'ro.conf' and 'rw.conf' entries are hardcoded, originally copied here from
+/opt/kiosk/template/boot/loader/entries/.  The only difference from the regular kernel boot entry
+is the 'kioskmode' flag (set to rw or ro), and the customized name.  The 'kioskmode' flag is
+detected by systemd service /etc/systemd/system/kiosk-updater.service, and puts the kiosk in RO or
+RW mode.
+
+The 'rw.conf' entry will not normally be present in a fully locked down kiosk - it will be in hidden
+.#rw.conf form, updated by /usr/local/bin/kiosk-updater
+
+See /opt/kiosk/README for further details.

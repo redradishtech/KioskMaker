@@ -1,0 +1,37 @@
+site_name: KioskBuilder
+site_author: Jeff Turner
+copyright: Copyright &copy; 2025 Jeff Turner
+use_directory_urls: false
+nav:
+  # This trick makes the site_name into a hyperlink to index.html
+  - Home: index.md
+  - Build: build.md
+  - Configure: config.md
+
+#plugins:
+  #- offline
+
+theme:
+  # Last-minute change from 'material' to 'mkdocs' theme. 'material' is impossible to use offline, as it uses url() CSS to fetch dozens of fonts. Sadly 'mkdocs' does not support pymdownx.tabbed 
+  name: mkdocs
+    #  custom_dir: material/overrides
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.expand
+    - navigation.sections
+
+markdown_extensions:
+  - toc
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets:
+     check_paths: true
+     # ../ is assumed to be the kioskmaker root directory, containing files like '01_createkiosk_virtualbox'
+     base_path: 
+       - ../
+    #- toc:
+    #  permalink: true

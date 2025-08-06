@@ -1,0 +1,5 @@
+# For debugging, it would be really nice if we could view or rw systemd history in ro mode, with this line:
+# /var/log/journal
+# but it doesn't seem to work. Files below the top-level directory are not copied into the in-memory overlay, and
+# systemd in ro mode uses the non-persistent /run/log/journal. Perhaps systemd-journald starts before the overlay
+# service?

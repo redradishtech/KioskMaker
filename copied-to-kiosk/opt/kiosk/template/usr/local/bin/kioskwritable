@@ -1,0 +1,121 @@
+#!/bin/bash
+# Helper script to toggle read-onlyness of this server. See:
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/managing_file_systems/index#setting-read-only-permissions-for-the-root-file-system_managing-file-systems
+# Used by /usr/local/bin/kiosk-updater to toggle read-only'ness based on a kernel parameter
+
+
+fail() { echo >&2 "$*"; exit 1; }
+usage() {
+	echo >&2 "Usage: print or change the gnome 'session' aka. user environment"
+	echo >&2
+	echo >&2 "kioskwritable				# Prints 'true' and exits successfully if filesystem is writable"
+	echo >&2 "kioskwritable true		# Switch filesystem to rw"
+	echo >&2 "kioskwritable false		# Switch filesystem to ro"
+	exit 2
+}
+
+if [[ $# -gt 1 ]] || [[ $* =~ --help ]]; then
+	usage
+fi
+
+home_is_tmpfs="$(grep '^none\s/home/kiosk\stmpfs' /etc/mtab)"
+readonlyflag="$(grep '^READONLY=yes' /etc/sysconfig/readonly-root)"
+rootwritable="$(grep ' / xfs rw,' /etc/mtab)"
+
+
+iswritable() {
+	if [[ -n $readonlyflag ]]; then
+		if [[ -n $home_is_tmpfs ]]; then
+			echo "false - both READONLY=yes in /etc/sysconfig/readonly-root AND /home/kiosk is a tmpfs"
+			return 1
+		fi
+		echo "false - but /home/kiosk isn't tmpfs"
+		return 1
+	else
+		if [[ -n $home_is_tmpfs ]]; then
+			echo "false - READONLY=yes but /home/kiosk is still a tmpfs"
+			return 1
+		else
+			echo true
+			return 0
+		fi
+	fi
+}
+
+makereadonly() {
+	[[ $EUID = 0 ]] || fail "Must be run as root or under sudo"
+	echo "Making / ro"
+	set -x
+	if [[ -z $readonlyflag ]]; then   # Flag is wrong
+		[[ -n $rootwritable ]] || fail "Error: inconsistent state: root is read-only but READONLY=no in /etc/sysconfig/readonly-root"
+		sed -i -e 's/^READONLY=no/READONLY=yes/' /etc/sysconfig/readonly-root
+	fi
+
+	# In ro mode, require a password to 'rw.conf'
+	# grub2-set-password to set a grub password, and edit rw.conf to require that password to boot:
+	sed -i -e 's/^grub_users $grub_users/grub_users root/' /boot/loader/entries/rw.conf
+	grub2-editenv /boot/grub2/grubenv set saved_entry=ro
+	# We don't need to always show grub menu in 'ro' mode. https://hansdegoede.livejournal.com/19081.html
+	grub2-editenv /boot/grub2/grubenv set menu_auto_hide=1
+	# A boot is considered a success after 2m of successful runtime. Hardcode initial success to avoid grub unless it actually fails
+	grub2-editenv /boot/grub2/grubenv set boot_success=1
+
+	if ! grep -q defaults,ro /etc/fstab; then   # fstab is wrong
+		[[ -n $rootwritable ]] || fail "Error: inconsistent state: root is read-only but / is ro in /etc/fstab"
+
+		# Changes:
+		# /dev/mapper/almalinux-root /                       xfs     defaults        0 0
+		# to:
+		# /dev/mapper/almalinux-root /                       xfs     defaults,ro        0 0
+		perl -i.bak -pe 's{^(\S+\s+/\s+\S+\s+)(defaults)(?!.*\bro\b)}{$1 . $2 . ",ro"}e' /etc/fstab
+		grep -q defaults,ro /etc/fstab || fail "Failed to mark / as ro in /etc/fstab"
+	fi
+	#if [[ -n $rootwritable ]]; then echo "Reboot is required to make root filesystem readonly"; fi
+	grub2-editenv /boot/grub2/grubenv set saved_entry=ro
+	if [[ -n $rootwritable ]]; then
+		if ! mount -o ro,remount /; then # This often fails with 'mount: /: mount point is busy.'
+			echo "Now rebooting, as it is the only way to change the root filesystem from rw to ro"
+			reboot
+		fi
+	fi
+	set +x
+}
+
+makereadwrite() {
+	[[ $EUID = 0 ]] || fail "Must be run as root or under sudo"
+	echo "Making / rw"
+	set -x
+	mount -o rw,remount /
+	if grep -q /home/kiosk /etc/mtab; then umount -l /home/kiosk || :; fi  # if tmpfs
+	# We can't use perl because it depends on redhat-rpm-config -> kernel-srpm-macros
+	sed -i -e 's/^READONLY=yes/READONLY=no/' /etc/sysconfig/readonly-root
+	if grep -q defaults,ro /etc/fstab; then
+		# Changes:
+		# /dev/mapper/almalinux-root /                       xfs     defaults,ro        0 0
+		# to:
+		# /dev/mapper/almalinux-root /                       xfs     defaults        0 0
+		perl -i.bak -pe 's{^(\S+\s+/\s+\S+\s+)(defaults),ro}{$1$2}i' /etc/fstab
+	fi
+	if grep -q defaults,ro /etc/fstab; then fail "Failed to remove rw from / /etc/fstab"; fi
+	grub2-editenv /boot/grub2/grubenv set saved_entry=rw
+	# Always show grub menu, since the operator will chose 'ro' when satisfied. https://hansdegoede.livejournal.com/19081.html
+	grub2-editenv /boot/grub2/grubenv unset menu_auto_hide
+
+	# Make the grub 'rw' entry reappear if it was hidden
+	#if [[ -f /boot/loader/entries/.#rw.conf ]]; then
+	#	mv "/boot/loader/entries/.#rw.conf" '/boot/loader/entries/rw.conf'
+	#fi
+	# Remove the password, allowing anyone to boot rw.conf:
+	sed -i -e 's/^grub_users root/grub_users $grub_users/' /boot/loader/entries/rw.conf
+	set +x
+}
+
+if (( $# == 0 )); then
+	iswritable || exit 1
+else
+	case "$1" in
+		true|yes) makereadwrite ;;
+		false|no) makereadonly ;;
+		*) usage
+	esac
+fi

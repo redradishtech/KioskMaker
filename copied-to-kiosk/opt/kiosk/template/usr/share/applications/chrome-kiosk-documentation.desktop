@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=Kiosk Documentation
+Type=Application
+# Reuse our chrome-kiosk script which avoids all the Chrome startup login/auto-update nonsense
+Exec=/usr/local/bin/chrome-kiosk file:///var/www/kiosk/docs/deploy.html
+# This is the icon filched from /usr/share/applications/org.gnome.Tour.desktop
+Icon=org.gnome.Tour

@@ -1,0 +1,68 @@
+#!/bin/bash
+# Helper script that prints or changes the gnome 'session' by interacting with accounts-daemon over
+# DBus.
+# Called by /usr/local/bin/kiosk-updater to toggle session from locked-down mode
+# ('gnome-kiosk-script-wayland') to interactive ('gnome') depending on kernel params.
+
+fail() { echo >&2 "$*"; exit 1; }
+usage() {
+	echo >&2 "Usage: print or change the gnome 'session' aka. user environment"
+	echo >&2
+	echo >&2 "kiosksession								# Print the current session type"
+	echo >&2 "kiosksession gnome						# Switch to standard Gnome (not locked down)"
+	echo >&2 "kiosksession gnome-kiosk-scriptwayland	# Switch to locked-down kiosk mode"
+	exit 2
+}
+
+if [[ $# -gt 1 ]] || [[ $* =~ --help ]]; then
+	usage
+fi
+
+[[ $EUID = 0 ]] || fail "Must be run as root or under sudo"
+
+user=kiosk
+configfile="/var/lib/AccountsService/users/$user"
+if [[ -f "$configfile" ]]; then
+	currentsession="$(grep -oP '(?<=Session=).*' "$configfile")" || fail "No Session= line in $configfile"
+	[[ -n $currentsession ]] || fail "Unexpectedly blank 'Session' in $configfile"
+	[[ $(stat -c %a "$configfile") = 600 ]] || echo "WARNING: permissions were wrong on $configfile (before we made any changes)"
+else
+	# It is normal for $configfile to not exist initially, or if the default ('gnome') session is used
+	currentsession=gnome
+fi
+
+if (( $# == 0 )); then
+	echo "$currentsession"
+else
+	newsession="$1"
+	# Note that in AlmaLinux 9.x this was /usr/share/gnome-session/sessions/
+	sessionfile="/usr/share/wayland-sessions/$newsession.desktop"
+	#[[ -f $sessionfile ]] || fail "'$newsession' is not a valid session type (no $sessionfile). Use 'gnome-kiosk-script-wayland' or 'gnome'"
+	if [[ $newsession != "$currentsession" ]]; then
+		echo "Asked to change user $user's session from '$currentsession' to '$newsession'"
+
+		# Use dbus to change $configfile so that the change is noticed by accounts-daemon.service, which may be already running
+		# https://afrantzis.wordpress.com/2012/06/11/changing-gdmlightdm-user-login-settings-programmatically/
+		# --print-reply=literal returns a string that starts with whitespace, hence the sed to strip it
+		USER_PATH="$(dbus-send --print-reply=literal --system --dest=org.freedesktop.Accounts /org/freedesktop/Accounts org.freedesktop.Accounts.FindUserByName string:"$user" | sed -e 's#[\t ]\+##g')"
+		[[ -n $USER_PATH ]] || fail "Unable to get dbus path for user $user"
+		dbus-send --print-reply --system --dest=org.freedesktop.Accounts "$USER_PATH" org.freedesktop.Accounts.User.SetSession string:"$newsession"
+		if [[ -f "$configfile" ]] && [[ $(stat -c %a "$configfile") != 600 ]]; then
+			# The dbus-send command resulted in an update to $configfile. Whatever
+			# process updates $configfile leaves permissions as 644, whereas
+			# accounts-daemon wants them 600. Normally accounts-daemon auto-corrects
+			# these permissions on start, but it can't when the filesystem is read-only,
+			# and breaks. This is a bug that we work around by fixing permissions
+			# manually
+			   echo "Fixing permissions on $configfile"
+		       chmod go-r "$configfile"
+		fi
+		#sed -i -e "s/^Session=.*/Session=$newsession/g" "$configfile"
+		if [[ $newsession != gnome ]]; then
+			[[ -f $sessionfile ]] || fail "We changed session to $newsession but $sessionfile still does not exist"
+			grep -q "^Session=$newsession" "$configfile" || fail "Failed to change Session= line in $configfile"
+		fi
+	else
+		echo >&2 "Session is already '$currentsession'"
+	fi
+fi

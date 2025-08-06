@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<application-state>
+  <context id="">
+    <application id="google-chrome.desktop" score="13" last-seen="1715592946"/>
+    <application id="gnome-control-center.desktop" score="1" last-seen="1715592658"/>
+    <application id="org.gnome.Terminal.desktop" score="128" last-seen="1715592941"/>
+    <application id="org.gnome.tweaks.desktop" score="7" last-seen="1715586356"/>
+  </context>
+</application-state>

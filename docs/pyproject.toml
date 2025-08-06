@@ -1,0 +1,14 @@
+[project]
+name = "docs"
+version = "0.1.0"
+description = "Kiosk"
+authors = [
+    { name = "Jeff Turner", email = "jeff@redradishtech.com" }
+]
+dependencies = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.28",
+    "pymdown-extensions>=10.8.1",
+]
+readme = "README.md"
+requires-python = ">= 3.8"

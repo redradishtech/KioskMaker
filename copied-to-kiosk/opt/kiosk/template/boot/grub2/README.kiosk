@@ -1,0 +1,2 @@
+user.cfg contains a hash of the password required to boot with the ../loader/entries/rw.conf entry.
+The password is set by the kiosk builder in ./02_kioskify-vm, with default password being 'kioskmaker'

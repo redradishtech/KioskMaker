@@ -1,0 +1,10 @@
+# Ignore all .idea files and folders except those that are safe to share
+docs/.obsidian
+docs/.idea
+docs/.venv
+docs/site
+*.swp
+copied-to-kiosk/opt/kiosk/template/tmp/chrome/google-chrome-stable_current_x86_64.rpm
+tmp
+copied-to-kiosk/opt/kiosk/template/home/kiosk/.dbus
+copied-to-kiosk/opt/kiosk/template/root/.ssh

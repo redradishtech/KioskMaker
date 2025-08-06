@@ -1,0 +1,113 @@
+#!/bin/bash -eu
+# Given a clean AlmaLinux install accessible via SSH on localhost:2222 (see
+# ./ssh_config_kioskclient), this
+# script turns the remote AlmaLinux into a Kiosk by copying our additions to kiosk:/opt/kiosk, and
+# invoking /opt/kiosk/kioskify to apply them.
+#
+# Implementation notes:
+# - Permissions and ownership of files we add are important. We don't bother to get them correct
+# outside the VM, as we don't know the 'kiosk' UID in the VM, and it's easy to forget to chown
+# 1000:1000 new kiosk-owned files. Instead, we rsync everything to kiosk:/opt/kiosk/template/ and
+# run /opt/kiosk/kioskify, which bulk-fixes /opt/kiosk/template/ permissions and ownership before
+# copying the files to /.
+# - Assuming 'kiosk' is from Virtualbox, we could have mounted ./copied-to-kiosk/opt/kiosk/template/opt/kiosk/ as a
+# shared folder, but that requires installing Virtualbox Guest Additions, which is a palaver.
+
+KIOSKMODE_GRUB_PASSWORD=kioskmaker
+
+fail() { echo >&2 "$*"; exit 1; }
+
+# Export vars so 
+edit_kiosk_dconf() {
+	export HOME=$PWD/copied-to-kiosk/opt/kiosk/template/home/kiosk
+	[[ -d $HOME ]] || fail "Could not find $HOME"
+	eval "$(dbus-launch --sh-syntax)"
+	export XDG_RUNTIME_DIR=/tmp/kiosk-runtime-user
+	trap 'kill "$DBUS_SESSION_BUS_PID"' TERM EXIT
+}
+
+# Customize the kiosk user's desktop background (for configuration mode), before we copy files onto
+# the VM.
+# If you want to change the blue/black gradient, change that here.
+# To use a custom background image, first copy it to:
+# ./copied-to-kiosk/opt/kiosk/template/home/kiosk/.local/share/backgrounds/
+# then edit the 'picture-uri' line below.
+#
+# These commands alter ./copied-to-kiosk/opt/kiosk/template/home/kiosk/.config/dconf/user which is a
+# binary registry, requiring us to fire up a temporary dbus process to edit it. An alternative would
+# be to run the kiosk VM, log in (read/write), manually change desktop settings as desired, then
+# rsync the ~kiosk/.config/dconf/user file from the VM to the ./copied-to-kiosk location.
+setbackground() (
+	# https://askubuntu.com/a/973307/528035
+	#https://github.com/GNOME/gsettings-desktop-schemas/blob/master/schemas/org.gnome.desktop.background.gschema.xml.in
+	bgset() { gsettings set org.gnome.desktop.background "$@"; }
+	bgreset() { gsettings reset org.gnome.desktop.background "$@"; }
+	echo "Before:"
+	gsettings list-recursively | grep background
+
+	bgreset picture-uri
+	bgset picture-uri 'file:///home/kiosk/.local/share/backgrounds/kioskmaker.svg'
+	bgset picture-uri-dark 'file:///home/kiosk/.local/share/backgrounds/kioskmaker.svg'
+	gsettings set org.gnome.desktop.screensaver picture-uri  'file:///home/kiosk/.local/share/backgrounds/kioskmaker.svg'
+	#bgset picture-options 'zoom' # Scale the bg image to the desktop size
+	bgset picture-options 'zoom'
+	# The shading colours are irrelevant when a picture is set, but if picture-options is set to 'none' these take effect
+	bgset primary-color '#000000' # Black 
+	bgset secondary-color '#0b406b' # Blue
+	bgset color-shading-type 'vertical' # Gradient direction
+	# Doesn't seem to work. Would be nice if we could display url.txt
+	#bgset show-desktop-icons 'true'
+	echo "After:"
+	gsettings list-recursively | grep background
+)
+
+disable_upgrades() {
+	# Something wrong here - org.gnome.software doesn't exist
+	#gsettings set org.gnome.software download-updates false
+	#gsettings set org.gnome.software download-updates-notify false
+	#gsettings set org.gnome.software allow-updates false
+	#gsettings set org.gnome.software allow-upgrade false
+	:
+}
+
+sync_files_on_kiosk() {
+	# Install rsync so repeated runs are fast
+	./sshkiosk "command -v rsync &>/dev/null || dnf install -y rsync"
+	rsync -e "ssh -F ./ssh_config_kioskclient" -rlR ./copied-to-kiosk/./opt/kiosk kiosk:/ -v --delete
+	# kioskify creates the 'kiosk' user, copies /opt/kiosk/template to / and does other setup tasks
+}
+
+# Set grub password required to switch from ro to rw mode.
+set_grub_password() {
+	local binary
+	binary=/usr/bin/grub2-mkpasswd-pbkdf2    # as on Redhat OSes
+	[[ -x $binary ]] || binary=/usr/bin/grub-mkpasswd-pbkdf2    # as on Ubuntu
+	[[ -x $binary ]] || fail "Cannot find $binary"
+	local passhash
+	# Simulate logic in /usr/sbin/grub2-set-password on almalinux (not present on ubuntu)
+	passhash="$({ echo "$KIOSKMODE_GRUB_PASSWORD"; echo "$KIOSKMODE_GRUB_PASSWORD"; } | LC_ALL=C "$binary" | grep -v '[eE]nter password:' | sed -e "s/PBKDF2 hash of your password is //")"
+	echo "Setting grub password '$KIOSKMODE_GRUB_PASSWORD', hash: $passhash"
+	echo "GRUB2_PASSWORD=$passhash" > ./copied-to-kiosk/opt/kiosk/template/boot/grub2/user.cfg
+}
+
+./sshkiosk --init
+# Update template files before copying to kiosk
+./copied-to-kiosk/opt/kiosk/template/tmp/chrome/fetch-chrome   # Get and cache the Chrome RPM
+
+(
+:
+	edit_kiosk_dconf
+	setbackground
+	#disable_upgrades
+) || echo $?
+
+set_grub_password
+./docs/build
+rsync -rR ./docs/site/./ ./copied-to-kiosk/opt/kiosk/template/var/www/kiosk/docs
+sync_files_on_kiosk
+./sshkiosk /opt/kiosk/kioskify
+
+echo "VM has been kioskified. You may now reboot it, and should expect to see kiosk grub boot options"
+
+
+# vim: set tw=100:

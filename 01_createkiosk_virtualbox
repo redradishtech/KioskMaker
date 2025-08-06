@@ -1,0 +1,94 @@
+#!/bin/bash -eu
+# Creates a Virtualbox VM called 'kiosk', running AlmaLinux.
+#
+# AlmaLinux installation is automated via the ./ks.cfg Kickstart configuration.
+# Please edit ./ks.cfg before running this script, or add --manual to do OS
+# configuration by hand.
+#
+# Flags:
+#  --wipe		any existing kiosk VM is wiped and recreated
+#  --manual		allow manual installation rather than Kickstart automation
+#
+# After running, you may SSH into the VM with ./sshkiosk or proceed to ./02_kioskify-vm
+
+# Get the desired 'minimal' ISO url and sha256sum from https://almalinux.org/get-almalinux/
+#url="https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.0-x86_64-minimal.iso"
+url="https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.0-x86_64-dvd.iso"
+#sha256sum=e73ccc95ff21a43ab23eebe227257fa34df091570b2bcf8a23f918bf9b662fc3
+sha256sum=6c443f462b3993d15192a7c43ba8dfa3f232514db47d38796dab007a7455ae1a
+downloaddir=~/Downloads
+k=kiosk
+vmbase=~/VirtualBox\ VMs
+vmdir="$vmbase/$k"
+
+fail() { echo >&2 "$*"; exit 1; }
+
+iso="$downloaddir/$(basename "$url")"
+[[ -f "$iso" ]] || (
+	cd "$downloaddir"
+	curl -C - -LOJ "$url"
+)
+#sha256sum "$iso" | grep -q "$sha256sum" || fail "$iso does not match sha256 checksum $sha256sum"
+
+[[ -d $vmbase ]] || fail "Missing $vmbase. Is Virtualbox not installed?"
+
+if VBoxManage list vms | grep -q "\"$k\""; then
+	if [[ $* =~ --wipe ]]; then
+		while true; do
+			eval "$(VBoxManage showvminfo "$k" --machinereadable | grep -P  '^(VMState)=')"
+			echo "State: $VMState"
+			case "$VMState" in
+				running) VBoxManage controlvm "$k" poweroff;;
+				poweroff) break ;;
+			esac
+			echo -n .
+			sleep 0.1
+		done
+		rm -f ./tmp/known_hosts
+		sleep 0.4
+	else
+		fail "'$k' already exists. Add --wipe to recreate the VM (and its disk)"
+	fi
+fi
+
+# Detach and nuke disk
+if VBoxManage showmediuminfo "$vmdir"/"$k".vdi | grep -q "State.*created"; then
+	VBoxManage storageattach "$k" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium none &>/dev/null || :
+	VBoxManage closemedium "$vmdir"/"$k".vdi --delete
+	rm -rf "$vmdir"/"$k".vdi
+fi
+
+# Nuke vm
+if VBoxManage showvminfo "$k" &>/dev/null; then
+	VBoxManage unregistervm "$k" --delete
+fi
+
+VBoxManage createvm --name "$k" --ostype "Linux_64" --register
+VBoxManage modifyvm "$k" --memory 4096
+VBoxManage modifyvm "$k" --firmware efi
+VBoxManage modifyvm "$k" --cpus 2
+
+# Minimal requires 8Gb. Graphical requires 10Gb
+VBoxManage createmedium disk --filename "$vmdir/$k.vdi" --size $((8*1024))
+VBoxManage storagectl "$k" --name "SATA Controller" --add sata --portcount 2
+VBoxManage storageattach "$k" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium "$vmdir/$k.vdi"
+VBoxManage storageattach "$k" --storagectl "SATA Controller" --port 1 --device 0 --type dvddrive --medium "$iso"
+
+if [[ $* =~ --manual ]]; then
+	:
+else
+	# Copy our Kickstart config file into a virtual 'oemdrv' disk, and mount it.
+	mkdir -p ./tmp/oemdrv
+	cp ks.cfg ./tmp/oemdrv
+	mkisofs -q -o tmp/oemdrv.iso -V OEMDRV -r -J tmp/oemdrv
+	VBoxManage storageattach "$k" --storagectl "SATA Controller" --port 2 --device 0 --type dvddrive  --medium ./tmp/oemdrv.iso
+fi
+if [[ ${*:-} =~ --guestadditions ]]; then
+	# For config, we rsync (over ssh) file to /opt/kiosk/template. An alternative is to install VirtualBox Guest Additions and share a disk, but rsync seemed simpler (and I need ssh anyway)
+	VBoxManage storageattach "$k" --storagectl "SATA Controller" --port 3 --device 0 --type dvddrive  --medium /usr/share/virtualbox/VBoxGuestAdditions.iso
+fi
+VBoxManage modifyvm "$k" --boot1 dvd --boot2 none --boot3 none --boot4 none
+VBoxManage modifyvm "$k" --vram 16
+VBoxManage modifyvm "$k" --graphicscontroller vmsvga
+VBoxManage modifyvm "$k" --natpf1 "guestssh,tcp,,2222,,22"
+VBoxManage startvm "$k"

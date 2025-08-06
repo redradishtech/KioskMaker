@@ -1,0 +1,5 @@
+'gnome-kiosk-script' is automatically invoked if one's gnome session (defined in
+/var/lib/AccountsService/users/kiosk) is 'gnome-kiosk-script' rather than the usual 'ubuntu', and
+the 'gnome-kiosk-script-session' package is installed. 'gnome-kiosk-script' is hardcoded to look in
+~/.local/bin/gnome-kiosk-script, which we symlink to our actual script
+/usr/local/bin/gnome-kiosk-script

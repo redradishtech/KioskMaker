@@ -1,0 +1,41 @@
+#!/bin/bash
+# Launch Chrome in kiosk mode, defaulting to the website URL in /home/kiosk/url.txt.
+#
+# This script may be launched:
+# - automatically from ~kiosk/.config/autostart/chrome-kiosk.desktop (config mode)
+# - manually from /usr/share/applications/chrome-kiosk-documentation.desktop (config mode)
+# - from /usr/local/bin/gnome-kiosk-script (in locked-down kiosk mode)
+# A URL can be given as an argument (as in
+# /usr/share/applications/chrome-kiosk-documentation.desktop), but that is omitted,
+# /home/kiosk/url.txt is used.
+
+if ! pidof chrome >/dev/null; then
+
+
+	. /usr/local/share/kiosk/cmdline.sh
+	if has_cmd_word kioskmode; then
+		kioskmode="$(get_cmd kioskmode)"
+		case "$kioskmode" in
+			# turn off kiosk mode for rw, to let us set the URL and home page
+			rw) chromeargs=();;
+			ro|*) chromeargs=(--kiosk --incognito);;
+		esac
+	fi
+
+	if [[ $# == 1 && $1 =~ ^http ]]; then
+		url="$1"
+	else
+		urlfile=/home/kiosk/url.txt
+		if [[ -f $urlfile ]]; then
+			url="$(grep -v "^#" "$urlfile")"
+		else
+			echo "Error: URL not specified - missing $urlfile file. Please create this file with the URL to default to" > /tmp/error.html
+			url="file:///tmp/error.html"
+		fi
+	fi
+	echo "Opening URL $url"
+
+	# The --password-store=basic prevents it trying to unlock the gnome keychain to store passwords
+	# The --simulate-outdated-no-au suppresses the latest version check. https://stackoverflow.com/a/65721555
+	google-chrome "${chromeargs[@]}" --password-store=basic --no-first-run --no-default-browser-check --noerrdialogs --disable-infobars --start-maximized --disable-pinch --overscroll-history-navigation=0 --disable-features=TranslateUI --disable-session-crashed-bubble --disable-save-password-bubble --disable-popup-blocking --disable-translate --disable-new-tab-first-run --disable-ipv6 --disable-sync --disable-web-resources --enable-features=WebXR --simulate-outdated-no-au="01 Jan 2199" --app="$url"
+fi

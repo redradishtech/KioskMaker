@@ -1,0 +1,14 @@
+[Unit]
+Description=Toggle kiosk ro/rw status based on kioskmode kernel param
+
+[Service]
+Type=oneshot
+After=local-fs.target
+RemainAfterExit=true
+ExecStart=/usr/local/bin/kiosk-updater
+
+[Install]
+WantedBy=multi-user.target
+# kiosk-updater modifies /var/lib/AccountsService/users/kiosk which is read by accounts-daemon, so we want to run before it.
+WantedBy=accounts-daemon.service
+RequiredBy=accounts-daemon.service

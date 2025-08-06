@@ -1,0 +1,2 @@
+# Make /home/kiosk a tmpfs clone of the underlying /home/kiosk
+files /home/kiosk

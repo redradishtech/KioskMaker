@@ -1,0 +1,11 @@
+#!/bin/bash
+# When the Wayland session (defined in /var/lib/AccountsService/users/kiosk) is 'gnome-kiosk-script-wayland',
+# indicating locked-down kiosk mode, then this script runs (and nothing else).
+# The session will have been set by /etc/systemd/system/kiosk-updater.service on boot,
+# updating the kiosk based on kernel parameters.
+
+# If chrome is exited (ctrl+w) or crashes, just restart
+while true; do
+	chrome-kiosk	 # Launch Chrome
+	sleep 2		# Delay to minimize damage from crash loops
+done

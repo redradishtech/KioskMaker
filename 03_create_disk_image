@@ -1,0 +1,21 @@
+#!/bin/bash -eu
+# Creates a raw disk image of kiosk.vdi suitable for writing to a physical hard disk.
+
+fail() { echo >&2 "$*"; exit 1; }
+k=kiosk
+vmbase=~/VirtualBox\ VMs
+base="$vmbase/$k/$k"
+
+[[ -f "$base.vdi" ]] || fail "Missing $base.vdi. Run ./01_createkiosk_virtualbox and ./02_kioskify-vm"
+if [[ -f $base.img && ${1-} != --wipe ]]; then
+	fail "$base.img already exists. Pass --wipe to delete it"
+else
+	set -x
+	rm -f "$base.img"
+	vboxmanage internalcommands converttoraw "$base.vdi" "$base.img"
+	# This also works:
+	#qemu-img convert -f vdi -O raw "$base.vdi" "$base.img"
+
+	echo "kiosk.img generated. Contents (fdisk -l):"
+	fdisk -l "$base.img"
+fi

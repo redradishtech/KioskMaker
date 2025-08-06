@@ -1,0 +1,14 @@
+# This ssh_config snippet defines host 'kiosk' for connecting to the kiosk Virtualbox VM.
+# It assumes ssh portforwarding from the Virtualbox VM to localhost port 2222 (see ./01_createkiosk_virtualbox).
+# It is used by ./sshkiosk, but can be used e.g. via: rsync -e 'ssh -F ./ssh_config_kioskclient' kiosk:...
+Host kiosk
+	Hostname localhost
+	# Set up with: (run as $USER not root)
+	# VBoxManage modifyvm kiosk --nat-pf1 "guestssh,tcp,,2222,,22"
+	HostKeyAlias kiosk
+	StrictHostKeyChecking no
+	UserKnownHostsFile ./tmp/known_hosts
+	IdentityAgent no
+	Port 2222
+	IdentityFile ./copied-to-kiosk/opt/kiosk/template/root/.ssh/kioskbuilder
+	User root

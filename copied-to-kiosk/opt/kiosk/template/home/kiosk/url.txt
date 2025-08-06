@@ -1,0 +1,2 @@
+# This URL will be loaded automatically in a browser when the kiosk starts
+file:///var/www/kiosk/docs/config.html

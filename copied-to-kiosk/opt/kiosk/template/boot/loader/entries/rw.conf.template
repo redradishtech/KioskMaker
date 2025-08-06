@@ -1,0 +1,8 @@
+title Kiosk - Configuration Mode (read-write)
+version ${KERNEL_EXPECTED_VERSION}.x86_64
+linux /vmlinuz-${KERNEL_EXPECTED_VERSION}.x86_64
+initrd /initramfs-${KERNEL_EXPECTED_VERSION}.x86_64.img
+options root=/dev/mapper/almalinux-root crashkernel=1G-4G:192M,4G-64G:256M,64G-:512M resume=/dev/mapper/almalinux-swap rd.lvm.lv=almalinux/root rd.lvm.lv=almalinux/swap kioskmode=rw
+grub_users $grub_users
+grub_arg --unrestricted
+grub_class almalinux

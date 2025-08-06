@@ -1,0 +1,77 @@
+#!/bin/bash
+# This script changes the kiosk settings based on a 'kioskmode' kernel parameter set in grub (the
+# only way to configure a locked-down kiosk).
+#
+# kioskmode=rw   makes the filesystem writable and loads a standard Gnome session
+# kioskmode=ro   makes the filesystem read-only and loads a locked-down 'gnome-kiosk-session'
+#				 session. The OS will reboot twice to effect this change
+#
+# This script is called from /etc/systemd/system/kiosk-updater.service on boot.
+
+log() { echo "$*"; }
+fail() { echo >&2 "$*"; exit 1; }
+
+. /usr/local/share/kiosk/cmdline.sh
+
+[[ $EUID = 0 ]] || { logger "Failed to run as $USER - must be root"; exit 1; }
+
+# If url.txt is not customized, display either config.html or lockdown.html as appropriate for the kiosk mode
+tweakurl() {
+	[[ -f /home/kiosk/url.txt ]] || return 0
+	case "$1" in
+		ro) perl -i -pe 's,file:///var/www/kiosk/docs/config.html,file:///var/www/kiosk/docs/lockdown.html,' /home/kiosk/url.txt;;
+		rw) perl -i -pe 's,file:///var/www/kiosk/docs/lockdown.html,file:///var/www/kiosk/docs/config.html,' /home/kiosk/url.txt;;
+	esac
+}
+
+if has_cmd_word kioskmode; then
+	kioskmode="$(get_cmd kioskmode)"
+	set -x
+	case "$kioskmode" in
+		rw)
+			log "kioskmode=rw flag detected. Making filesystem writable and using 'gnome' session"
+			kioskwritable true
+			kiosksession gnome
+			ln -sf /usr/share/applications/edit-url.desktop /home/kiosk/.config/autostart
+			ln -sf /usr/share/applications/chrome-kiosk.desktop /home/kiosk/.config/autostart
+			# Make root and kiosk passwords 'kiosk' to aid debugging
+			#usermod -p '$6$vYVI6jPVs0ybpW/U$m3rHB2auqEixb3uDj2.vg34Q1bYgNbf.1qgwOJaC0oHx5xSJMCK5KJUAfhObUiVxQJ386mh39DNOJINchScrF0' root
+			#usermod -p '$6$vYVI6jPVs0ybpW/U$m3rHB2auqEixb3uDj2.vg34Q1bYgNbf.1qgwOJaC0oHx5xSJMCK5KJUAfhObUiVxQJ386mh39DNOJINchScrF0' kiosk
+			tweakurl rw
+			log "Kiosk is now read-write"
+			;;
+		ro)
+			log "kioskmode=ro detected"
+			cursession="$(kiosksession)"
+			if ! kw="$(kioskwritable)"; then
+				# filesystem read-only
+				case "$cursession" in
+					gnome-kiosk-script-wayland)
+						log "kioskmode=ro flag detected, but filesystem is already read-only ($kw) and session is already $cursession. No action taken";;
+					gnome)
+						fail "Kiosk is already, unexpectedly, read-only ($kw), so we can't update the Gnome session from $cursession to gnome-kiosk-script-wayland";;
+				esac
+			else
+				# filesystem writable
+				case "$cursession" in
+					gnome-kiosk-script-wayland)
+						log "kioskmode=ro flag detected. Making filesystem read-only. The session is already (unexpectedly) $cursession"
+						;;
+					gnome)
+						log "kioskmode=ro flag detected. Making filesystem read-only and using 'gnome-kiosk-session' session"
+						kiosksession gnome-kiosk-script-wayland
+						;;
+				esac
+				rm -f /home/kiosk/.config/autostart/edit-url.desktop
+				rm -f /home/kiosk/.config/autostart/chrome-kiosk.desktop
+				# Lock down root and kiosk passwords
+				#usermod -p '$6$B0rNIUh6j3fs3s1Y$QtrHsBXHUM3netMEcNmAiWzOkWlkJBm/8aV3.HsCDa5s8UNWrkvq7sbB5ZMws5p/dfrDK4IesaplaRI18w9.m/' root
+				#usermod -p '$6$B0rNIUh6j3fs3s1Y$QtrHsBXHUM3netMEcNmAiWzOkWlkJBm/8aV3.HsCDa5s8UNWrkvq7sbB5ZMws5p/dfrDK4IesaplaRI18w9.m/' kiosk
+				kioskwritable false  # Note that this often triggers a reboot, if the filesystem couldn't be made ro due to open files.
+				tweakurl ro
+				log "'Kiosk is now read-only"
+			fi
+			;;
+		*) log "Unhandled kioskmode '$kioskmode'. Options are 'ro' or 'rw'";;
+	esac
+fi
