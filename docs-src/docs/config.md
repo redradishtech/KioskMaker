@@ -95,4 +95,18 @@ Congratulations, you have successfully configured your Kiosk!
 
 # Getting out of Kiosk mode
 
-It is possible to return from 
+To change from locked-down kiosk mode back to [configuration mode](config.md)
+
+ - Power cycle the kiosk
+ - As the kiosk starts, press Esc.
+ - You should see the grub boot screen:
+
+   ![](img/grub.png)
+   
+   Choose 'Kiosk - Configuration Mode (read-write)'
+
+- When prompted for username, enter `root`
+- When prompted for a password, enter the password set at kiosk build time. The password is in the `02_kioskify-vm`
+    script, and defaults to `kioskmaker`
+
+
