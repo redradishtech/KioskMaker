@@ -4,7 +4,10 @@ hide:
 ---
 
 
-# An initially configurable, ultimately locked down Chrome kiosk
+# An initially configurable, ultimately locked down Chrome kiosk!
+
+[![GitHub
+Repo](https://img.shields.io/badge/GitHub-KioskMaker-blue?logo=github)](https://github.com/redradishtech/KioskMaker)
 
 Say you need a 'kiosk' -- a computer that can only do one thing: run a browser with a particular URL. Our goals are:
 
@@ -51,7 +54,7 @@ When in locked down 'kiosk' mode:
 
 # This project
 
-KioskMaker is a set of scripts for building such a kiosk, based on [AlmaLinux](https://almalinux.org/), and targeting x86_64 hardware capable of running Chrome. You feed the scripts a downloaded AlmaLinux `.iso`, and end with a raw disk image of a customized operating system, which you can write directly to the hard disk of a kiosk.
+KioskMaker is a set of scripts [on github](https://github.com/redradishtech/KioskMaker) for building such a kiosk, based on [AlmaLinux](https://almalinux.org/), and targeting x86_64 hardware capable of running Chrome. You feed the scripts a downloaded AlmaLinux `.iso`, and end with a raw disk image of a customized operating system, which you can write directly to the hard disk of a kiosk.
 
 
 

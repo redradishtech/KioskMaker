@@ -8,10 +8,10 @@ main() {
 	cd "$base"
 	convert_obsidian_imagelinks_to_standard
 	uv sync   # create a .venv if necessary
-	uv run mkdocs build "$@"
+	uv run mkdocs build -d ../docs "$@"
 	relativize_links
 	verify
-	echo "Done! Docs are in $base/site/"
+	echo "Done! Docs are in $(realpath ../docs)"
 }
 
 
@@ -28,7 +28,7 @@ rewrite() {
 
 relativize_links() {
 	# https://github.com/squidfunk/mkdocs-material/issues/6749
-	cd "$base/site"
+	cd "$base/../docs"
 	rewrite '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' ''
 	grep -hoP '(?<=")https://fonts.googleapis.com/css[^"]+(?=")' **/*.html | sort | uniq | while read f; do
 		export new=$(echo "$f" | md5sum | cut -f1 -d" ").css
@@ -44,7 +44,7 @@ relativize_links() {
 }
 
 verify() {
-	if grep -P '<link .*https://.*\.(js|css)' "$base"/site/**/*.html; then
+	if grep -P '<link .*https://.*\.(js|css)' "$base"/../docs/**/*.html; then
 		echo >&2 "Oops, there are still js/css external links in the docs. They will hang on an internet-less kiosk"
 		exit 1
 	fi

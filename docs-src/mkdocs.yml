@@ -14,12 +14,19 @@ nav:
 theme:
   # Last-minute change from 'material' to 'mkdocs' theme. 'material' is impossible to use offline, as it uses url() CSS to fetch dozens of fonts. Sadly 'mkdocs' does not support pymdownx.tabbed 
   name: mkdocs
+  icon:
+    repo: fontawesome/brands/github
     #  custom_dir: material/overrides
   features:
+    - navigation.instant
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.expand
     - navigation.sections
+
+repo_url: https://github.com/redradishtech/KioskMaker
+repo_name: redradishtech/KioskMaker
+edit_uri: /blob/main/docs-src/docs/
 
 markdown_extensions:
   - toc
